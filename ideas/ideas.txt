@@ -1,0 +1,12 @@
+(1)
+Boostrapped Neural ODE / Bayesian
+Rely on the optimal control eqn in
+"Dissecting Neural ODEs" eq(2)
+so that we run initial fw / bw paths to draw a draft optimal path (warmup)
+or equivalently rely on some kine of transfer learning to use a prior model to draw the path and included
+loss of data plus prior info in the training (i.e. DE solution)
+(2)
+Depth Varying NDE <-> Time Varying DE??
+in the paper Dissecting Neural ODEs, section 3 , the work related to depth-varying NDE can be
+related to solving DE with Tensor , esp. for time-varying problems !
+first we need to experiment whether depth/time-variance is beneficial to expressiveness

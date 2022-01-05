@@ -16,3 +16,6 @@ https://arxiv.org/abs/2003.08063
 https://arxiv.org/abs/2103.12413
 https://arxiv.org/abs/2105.14070
 
+
+Expressive Power of NF https://arxiv.org/pdf/2006.00392v1.pdf
+
