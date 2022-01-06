@@ -1,6 +1,4 @@
 """
-
-https://arxiv.org/pdf/2006.00392v1.pdf
-
+http://proceedings.mlr.press/v108/kong20a/kong20a.pdf
 # TODO apply for CNF??
 """
