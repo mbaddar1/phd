@@ -1,13 +1,14 @@
 """
+https://github.com/DiffEqML/torchdyn/tree/master/tutorials
+https://github.com/DiffEqML/torchdyn/blob/master/tutorials/module3-tasks/m3c_continuous_normalizing_flows.ipynb
 https://github.com/DiffEqML/torchdyn/blob/master/tutorials/module1-neuralde/m1a_neural_ode_cookbook.ipynb
 """
-import matplotlib.pyplot as plt
 import pytorch_lightning as pl
-import torch.nn as nn
 import torch.utils.data as data
 from torchdyn.core import NeuralODE
 from torchdyn.datasets import *
-from torchdyn.nn import DepthCat
+from torchdyn.nn import DepthCat, GalLinear, Fourier
+from torchdyn.utils import *
 
 
 class Learner(pl.LightningModule):
@@ -39,7 +40,10 @@ class Learner(pl.LightningModule):
 2. 
 """
 if __name__ == '__main__':
+    # configs
+    dry_run = False
     device = torch.device('cpu')
+    #
     d = ToyDataset()
     X, yn = d.generate(n_samples=512, dataset_type='moons', noise=.1)
     colors = ['orange', 'blue']
@@ -54,17 +58,26 @@ if __name__ == '__main__':
     train = data.TensorDataset(X_train, y_train)
     trainloader = data.DataLoader(train, batch_size=len(X), shuffle=True)
 
-    # vector field parametrized by a NN
-    f = nn.Sequential(
-        DepthCat(1),
-        nn.Linear(2 + 1, 64),
-        nn.Tanh(),
-        DepthCat(1),
-        nn.Linear(64 + 1, 2))
+    # Galerkin Model
+    # vector field parametrized by a NN with "GalLinear" layer
+    # notice how DepthCat is still used since Galerkin layers make use of `t` (though in a different way compared to concatenation)
+    f = nn.Sequential(DepthCat(1),
+                      GalLinear(2, 32, expfunc=Fourier(5)),
+                      nn.Tanh(),
+                      nn.Linear(32, 2))
 
     t_span = torch.linspace(0, 1, 2)
 
     # Neural ODE
-    model = NeuralODE(f, sensitivity='adjoint', solver='tsit5', interpolator=None, atol=1e-3, rtol=1e-3).to(device)
+    model = NeuralODE(f, sensitivity='interpolated_adjoint', solver='tsit5', atol=1e-3, rtol=1e-3).to(device)
+    learn = Learner(t_span, model)
+    if dry_run:
+        trainer = pl.Trainer(min_epochs=1, max_epochs=1)
+    else:
+        trainer = pl.Trainer(min_epochs=100, max_epochs=100, progress_bar_refresh_rate=10)
+    trainer.fit(learn)
 
-    model(X_train)
+
+    # torchdyn with CNF
+
+
