@@ -1,27 +1,28 @@
 import logging
 
 import matplotlib.pyplot as plt
-import seaborn
 import numpy as np
+import seaborn
 import torch
 from torch import optim
 from torchdiffeq import odeint
 from tqdm import tqdm
+
 from cnf.examples.cnf_circles import CNF
 from utils.dist_gen import gen_torch_gaussian_mixture_1d
 
 
 def cnf_fit(base_dist: torch.distributions.Distribution,
             target_dist: torch.distributions.Distribution, t0: float, t1: float, in_out_dim: int,
-            hidden_dim: int, width: int, lr: float, niters: int, n_samples: int):
+            hidden_dim: int, width: int, lr: float, niters: int):
     logger_ = logging.getLogger('cnf_fit')
     logger_.info('Starting CNF fit')
     """ Params"""
 
     # device = 'cuda:0' if torch.cuda.is_available() else 'cpu'
     device = torch.device('cpu')
-    func = CNF(in_out_dim=in_out_dim, hidden_dim=hidden_dim, width=width)  # .to(device)
-    optimizer = optim.Adam(func.parameters(), lr=lr)
+    cnf_func_instance = CNF(in_out_dim=in_out_dim, hidden_dim=hidden_dim, width=width)  # .to(device)
+    optimizer = optim.Adam(cnf_func_instance.parameters(), lr=lr)
     loss_arr = np.zeros(niters)
     rolling_average_window = 10
     eps = 1e-4
@@ -34,7 +35,7 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
         s0 = x, log_p_z_init_t1
         # print(f's0 = {s0}')
         z_t, logp_soln = odeint(
-            func,
+            cnf_func_instance,
             s0,
             torch.tensor([t1, t0]).type(torch.FloatTensor),
             atol=1e-5,
@@ -61,19 +62,19 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
             if loss_rolling_avg_abs_diff < eps:
                 print(f'rolling average loss difference is {loss_rolling_avg_abs_diff}')
                 break
+    return cnf_func_instance
 
-    # generate samples
-    n_gen = 10000
-    z0 = base_dist.sample((n_gen, 1))
-    """
-    dummy , just to keep things running without touching the core
-    """
-    log_p_z_init_t0 = get_batched_init_log_p_z(num_samples=n_gen)
-    x_gen, _ = odeint(func=func, y0=(z0, log_p_z_init_t0), t=torch.tensor([t0, t1]).type(torch.FloatTensor))
+
+def generate_samples_cnf(cnf_func, base_dist, n_samples):
+    z0 = base_dist.sample((n_samples, 1))
+    assert isinstance(cnf_func, CNF)
+    log_p_z_init_t0 = get_batched_init_log_p_z(num_samples=n_samples)
+    x_gen, _ = odeint(func=cnf_func, y0=(z0, log_p_z_init_t0), t=torch.tensor([t0, t1]).type(torch.FloatTensor))
     x_gen = x_gen[-1]
     x_gen_np_arr = x_gen.detach().cpu().numpy().reshape(-1)
     seaborn.kdeplot(x_gen_np_arr)
     plt.savefig('dist.png')
+    return x_gen_np_arr
 
 
 def get_batched_samples_gmm_1d(num_samples):
@@ -101,6 +102,18 @@ if __name__ == '__main__':
     # start
     target_dist = gen_torch_gaussian_mixture_1d()
     base_dist = torch.distributions.Normal(loc=0, scale=1)
-    cnf_fit(base_dist=base_dist, target_dist=target_dist, t0=t0, t1=t1, in_out_dim=in_out_dim, hidden_dim=hidden_dim,
-            width=width,
-            lr=1e-3, niters=n_iters, n_samples=n_samples)
+    cnf_func_fit = cnf_fit(base_dist=base_dist, target_dist=target_dist, t0=t0, t1=t1, in_out_dim=in_out_dim,
+                           hidden_dim=hidden_dim, width=width, lr=1e-3, niters=n_iters)
+    z0 = base_dist.sample(sample_shape=(n_samples, 1))
+    samples_ = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_samples)
+
+    # TODO
+    """
+    Expressive power measuring 
+    1. Train a CNF to model GMM with d = 1, 2, ... D
+    2. Generate N samples, each with dimension d from trained NF (based on random latents)
+    3. Generate N* samples from the original GMM model 
+    4. Measure (1) : calculate divergence between N and N*
+    5. Measure (2) : Calculate log likelihood for N given CNF 
+    6. Observe the relation between measure (1) and (2) 
+    """
