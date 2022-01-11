@@ -9,7 +9,7 @@ from torchdiffeq import odeint
 from tqdm import tqdm
 
 from cnf.examples.cnf_circles import CNF
-from utils.dist_gen import gen_torch_gaussian_mixture_1d
+from utils.dist_gen import gen_torch_gaussian_mixture_1d, gen_gmm_Nd
 
 
 def cnf_fit(base_dist: torch.distributions.Distribution,
@@ -24,12 +24,12 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
     cnf_func_instance = CNF(in_out_dim=in_out_dim, hidden_dim=hidden_dim, width=width)  # .to(device)
     optimizer = optim.Adam(cnf_func_instance.parameters(), lr=lr)
     loss_arr = np.zeros(niters)
-    rolling_average_window = 10
-    eps = 1e-4
+    rolling_average_window = 3
+    eps = 1e-10
     # train loop
     for itr_idx in tqdm(range(niters)):
         optimizer.zero_grad()
-        x = target_dist.sample((n_samples, 1))
+        x = target_dist.sample_n(n_samples)
         assert x.shape[1] == in_out_dim  # FIXME by design should get dim from data
         log_p_z_init_t1 = get_batched_init_log_p_z(num_samples=n_samples)
         s0 = x, log_p_z_init_t1
@@ -43,15 +43,15 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
             method='dopri5',
         )
         z_t0, logp_diff_t0 = z_t[-1], logp_soln[-1]
-        # dummy1 = base_dist.log_prob(z_t0)
-        # dummy2 = logp_diff_t0
-        # dummy3 = logp_diff_t0.view(-1)
-        logp_x = base_dist.log_prob(z_t0) - logp_diff_t0  # .view(-1)
+        dummy1 = base_dist.log_prob(z_t0)
+        dummy2 = logp_diff_t0
+        dummy3 = logp_diff_t0.view(-1)
+        logp_x = base_dist.log_prob(z_t0) - logp_diff_t0.view(-1)  # .view(-1)
         loss = -logp_x.mean(0)
         # print('before loss backward')
         loss.backward()
         optimizer.step()
-        loss_scalar = loss.detach().numpy()[0]
+        loss_scalar = loss.detach().numpy()
         loss_arr[itr_idx] = loss_scalar
         if itr_idx % 10 == 0:
             print(f'i = {itr_idx}  loss = {loss_scalar}')
@@ -66,7 +66,7 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
 
 
 def generate_samples_cnf(cnf_func, base_dist, n_samples):
-    z0 = base_dist.sample((n_samples, 1))
+    z0 = base_dist.sample_n(n_samples)
     assert isinstance(cnf_func, CNF)
     log_p_z_init_t0 = get_batched_init_log_p_z(num_samples=n_samples)
     x_gen, _ = odeint(func=cnf_func, y0=(z0, log_p_z_init_t0), t=torch.tensor([t0, t1]).type(torch.FloatTensor))
@@ -95,14 +95,17 @@ if __name__ == '__main__':
     t1 = 10
     hidden_dim = 32
     width = 64
-    in_out_dim = 1
+
+    X_dim = 3
     lr = 1e-3
     n_iters = 100
     n_samples = 512
+    n_components_gmm = 3
     # start
-    target_dist = gen_torch_gaussian_mixture_1d()
-    base_dist = torch.distributions.Normal(loc=0, scale=1)
-    cnf_func_fit = cnf_fit(base_dist=base_dist, target_dist=target_dist, t0=t0, t1=t1, in_out_dim=in_out_dim,
+    # target_dist = gen_torch_gaussian_mixture_1d()
+    target_dist = gen_gmm_Nd(n_components=n_components_gmm, dim=X_dim)
+    base_dist = torch.distributions.MultivariateNormal(loc=torch.zeros(X_dim), scale_tril=torch.diag(torch.ones(X_dim)))
+    cnf_func_fit = cnf_fit(base_dist=base_dist, target_dist=target_dist, t0=t0, t1=t1, in_out_dim=X_dim,
                            hidden_dim=hidden_dim, width=width, lr=1e-3, niters=n_iters)
     z0 = base_dist.sample(sample_shape=(n_samples, 1))
     samples_ = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_samples)
