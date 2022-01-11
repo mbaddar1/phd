@@ -1,20 +1,19 @@
 import logging
+from datetime import datetime
 
-import matplotlib.pyplot as plt
 import numpy as np
-import seaborn
 import torch
 from torch import optim
 from torchdiffeq import odeint
 from tqdm import tqdm
 
 from cnf.examples.cnf_circles import CNF
-from utils.dist_gen import gen_torch_gaussian_mixture_1d, gen_gmm_Nd
+from utils.dist_gen import gen_gmm_Nd
 
 
 def cnf_fit(base_dist: torch.distributions.Distribution,
             target_dist: torch.distributions.Distribution, t0: float, t1: float, in_out_dim: int,
-            hidden_dim: int, width: int, lr: float, niters: int):
+            hidden_dim: int, width: int, lr: float, train_batch_size: int, niters: int):
     logger_ = logging.getLogger('cnf_fit')
     logger_.info('Starting CNF fit')
     """ Params"""
@@ -29,9 +28,9 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
     # train loop
     for itr_idx in tqdm(range(niters)):
         optimizer.zero_grad()
-        x = target_dist.sample_n(n_samples)
+        x = target_dist.sample_n(train_batch_size)
         assert x.shape[1] == in_out_dim  # FIXME by design should get dim from data
-        log_p_z_init_t1 = get_batched_init_log_p_z(num_samples=n_samples)
+        log_p_z_init_t1 = get_batched_init_log_p_z(num_samples=train_batch_size)
         s0 = x, log_p_z_init_t1
         # print(f's0 = {s0}')
         z_t, logp_soln = odeint(
@@ -71,16 +70,7 @@ def generate_samples_cnf(cnf_func, base_dist, n_samples):
     log_p_z_init_t0 = get_batched_init_log_p_z(num_samples=n_samples)
     x_gen, _ = odeint(func=cnf_func, y0=(z0, log_p_z_init_t0), t=torch.tensor([t0, t1]).type(torch.FloatTensor))
     x_gen = x_gen[-1]
-    x_gen_np_arr = x_gen.detach().cpu().numpy().reshape(-1)
-    seaborn.kdeplot(x_gen_np_arr)
-    plt.savefig('dist.png')
-    return x_gen_np_arr
-
-
-def get_batched_samples_gmm_1d(num_samples):
-    gmm = gen_torch_gaussian_mixture_1d()
-    samples_ = gmm.sample((num_samples, 1))
-    return samples_
+    return x_gen
 
 
 # get bach of initial values for log p_z
@@ -88,35 +78,60 @@ def get_batched_init_log_p_z(num_samples):
     return torch.zeros(size=(num_samples, 1)).type(torch.FloatTensor)
 
 
+def plot_distribution(x: torch.Tensor):
+    pass
+
+
 if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger()
     # params
     t0 = 0
     t1 = 10
     hidden_dim = 32
     width = 64
-
-    X_dim = 3
+    train_batch_size = 512
+    X_dim_range = np.arange(1, 10 + 1)
     lr = 1e-3
     n_iters = 100
-    n_samples = 512
     n_components_gmm = 3
-    # start
-    # target_dist = gen_torch_gaussian_mixture_1d()
-    target_dist = gen_gmm_Nd(n_components=n_components_gmm, dim=X_dim)
-    base_dist = torch.distributions.MultivariateNormal(loc=torch.zeros(X_dim), scale_tril=torch.diag(torch.ones(X_dim)))
-    cnf_func_fit = cnf_fit(base_dist=base_dist, target_dist=target_dist, t0=t0, t1=t1, in_out_dim=X_dim,
-                           hidden_dim=hidden_dim, width=width, lr=1e-3, niters=n_iters)
-    z0 = base_dist.sample(sample_shape=(n_samples, 1))
-    samples_ = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_samples)
+    results = np.empty(shape=len(X_dim_range), dtype=object)  # result[X_dim - 1] = (running_time,avg_log_prob)
 
-    # TODO
-    """
-    Expressive power measuring 
-    1. Train a CNF to model GMM with d = 1, 2, ... D
-    2. Generate N samples, each with dimension d from trained NF (based on random latents)
-    3. Generate N* samples from the original GMM model 
-    4. Measure (1) : calculate divergence between N and N*
-    5. Measure (2) : Calculate log likelihood for N given CNF 
-    6. Observe the relation between measure (1) and (2) 
-    """
+    # experiment with different dimensions of data
+    for X_dim in X_dim_range:
+        target_dist = gen_gmm_Nd(n_components=n_components_gmm, dim=X_dim)
+        base_dist = torch.distributions.MultivariateNormal(loc=torch.zeros(X_dim),
+                                                           scale_tril=torch.diag(torch.ones(X_dim)))
+
+        start_time = datetime.now()
+        cnf_func_fit = cnf_fit(base_dist=base_dist, target_dist=target_dist, t0=t0, t1=t1, in_out_dim=X_dim,
+                               hidden_dim=hidden_dim, width=width, lr=1e-3, niters=n_iters,
+                               train_batch_size=train_batch_size)
+        end_time = datetime.now()
+        time_diff_micro_sec = (end_time - start_time).microseconds
+
+        logger.info(
+            f'n_components_gmm = {n_components_gmm}, X_dim = {X_dim}, time_diff_micro_sec = {time_diff_micro_sec}')
+
+        # z0 = base_dist.sample(sample_shape=(n_samples, 1))
+        # samples_ = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_samples)
+
+        # TODO
+        """
+        Expressive power measuring 
+        1. Train a CNF to model GMM with d = 1, 2, ... D
+        2. Generate N samples, each with dimension d from trained NF (based on random latents)
+        3. Generate N* samples from the original GMM model 
+        4. Measure (1) : calculate divergence between N and N*
+        5. Measure (2) : Calculate log likelihood for N given CNF 
+        6. Observe the relation between measure (1) and (2) 
+        """
+        n_test_samples = 1000
+        gen_samples = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples)
+        log_prob_test = target_dist.log_prob(x=torch.tensor(gen_samples))
+        logger.info(
+            f'n_components_gmm = {n_components_gmm}, X_dim = {X_dim}, avg_log_prob = '
+            f'{log_prob_test.mean(0).detach().numpy()}')
+        results[X_dim - 1] = (time_diff_micro_sec, log_prob_test.mean(0).detach().numpy()[0])
+
+    print(results)
