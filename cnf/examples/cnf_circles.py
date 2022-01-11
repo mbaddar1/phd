@@ -163,8 +163,8 @@ if __name__ == '__main__':
     func = CNF(in_out_dim=2, hidden_dim=args.hidden_dim, width=args.width).to(device)
     optimizer = optim.Adam(func.parameters(), lr=args.lr)
     p_z0 = torch.distributions.MultivariateNormal(
-        loc=torch.tensor([0.0, 0.0]).to(device),
-        covariance_matrix=torch.tensor([[0.1, 0.0], [0.0, 0.1]]).to(device)
+        loc=torch.zeros(2).to(device),
+        covariance_matrix=torch.diag(torch.ones(2)).to(device)
     )
     loss_meter = RunningAverageMeter()
 
@@ -192,7 +192,8 @@ if __name__ == '__main__':
             )
 
             z_t0, logp_diff_t0 = z_t[-1], logp_diff_t[-1]
-
+            dummy1 = p_z0.log_prob(z_t0).to(device)
+            dummy2 = logp_diff_t0.view(-1)
             logp_x = p_z0.log_prob(z_t0).to(device) - logp_diff_t0.view(-1)
             loss = -logp_x.mean(0)
             # print('before loss backward')
