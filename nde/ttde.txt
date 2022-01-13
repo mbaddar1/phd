@@ -1,0 +1,3 @@
+
+https://www.semanticscholar.org/paper/A-Tensor-Decomposition-Algorithm-for-Large-ODEs-Dolgov/f68ed437cfd4fb8c5e53c7aada7e6a14349e9c50
+https://arxiv.org/pdf/2102.11830.pdf

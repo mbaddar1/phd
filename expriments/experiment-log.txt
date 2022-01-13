@@ -1,0 +1,7 @@
+experiment # 1
+=============================
+
+bast dist
+target dist
+# iters
+next steps (more multi-model distributions
