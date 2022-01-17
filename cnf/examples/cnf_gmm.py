@@ -44,6 +44,8 @@ check swap size
 cat /proc/swaps
 
 """
+
+
 def cnf_fit(base_dist: torch.distributions.Distribution,
             target_dist: torch.distributions.Distribution, t0: float, t1: float, in_out_dim: int,
             hidden_dim: int, width: int, lr: float, train_batch_size: int, niters: int):
@@ -170,7 +172,7 @@ if __name__ == '__main__':
                 f'{log_prob_test.mean(0).detach().numpy()}')
             time_diff_sum += time_diff_sec
             log_prob_sum += log_prob_test.mean(0).detach().numpy()
-            #in_out_sample_loss_diff_sum += np.abs(log_prob_test_avg + final_loss)
+            # in_out_sample_loss_diff_sum += np.abs(log_prob_test_avg + final_loss)
             in_sample_loss_sum += final_loss
         file.write(
             f"{X_dim},{time_diff_sum / per_dim_count},{-log_prob_sum / per_dim_count},"
