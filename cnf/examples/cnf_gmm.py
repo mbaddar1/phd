@@ -9,7 +9,7 @@ from torchdiffeq import odeint
 from tqdm import tqdm
 
 from cnf.examples.cnf_circles import CNF
-from utils.dist_gen import gen_vec_gaussian_mixture
+from distributions import gen_vec_gaussian_mixture
 
 # TODO
 """
