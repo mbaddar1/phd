@@ -11,8 +11,13 @@ from tqdm import tqdm
 from cnf.examples.cnf_circles import CNF
 from distributions.vector_gmm import gen_vec_gaussian_mixture
 
+
+# TODO
 """
-Tech. Issues
+1- understand the meaning of t0=0, t1=10, how discretization happens ?
+"""
+"""
+Tech. Issues 
 Got error
 Process finished with exit code 137 (interrupted by signal 9: SIGKILL)
 Possible cause : extensive memory usage
