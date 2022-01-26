@@ -1,14 +1,15 @@
 import torch
 from torch.autograd.functional import vjp
-from .dopri5 import Dopri5Solver
-from .bosh3 import Bosh3Solver
+
 from .adaptive_heun import AdaptiveHeunSolver
-from .fehlberg2 import Fehlberg2
-from .fixed_grid import Euler, Midpoint, RK4
-from .fixed_adams import AdamsBashforth, AdamsBashforthMoulton
+from .bosh3 import Bosh3Solver
+from .dopri5 import Dopri5Solver
 from .dopri8 import Dopri8Solver
-from .scipy_wrapper import ScipyWrapperODESolver
+from .fehlberg2 import Fehlberg2
+from .fixed_adams import AdamsBashforth, AdamsBashforthMoulton
+from .fixed_grid import Euler, Midpoint, RK4
 from .misc import _check_inputs, _flat_to_shape
+from .scipy_wrapper import ScipyWrapperODESolver
 
 SOLVERS = {
     'dopri8': Dopri8Solver,
@@ -28,7 +29,7 @@ SOLVERS = {
 }
 
 
-def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, event_fn=None):
+def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, event_fn=None, log_f_t=False):
     """Integrate a system of ordinary differential equations.
 
     Solves the initial value problem for a non-stiff system of first order ODEs:
@@ -69,10 +70,12 @@ def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, even
         ValueError: if an invalid `method` is provided.
     """
 
-    shapes, func, y0, t, rtol, atol, method, options, event_fn, t_is_reversed = _check_inputs(func, y0, t, rtol, atol, method, options, event_fn, SOLVERS)
+    shapes, func, y0, t, rtol, atol, method, options, event_fn, t_is_reversed = _check_inputs(func, y0, t, rtol, atol,
+                                                                                              method, options, event_fn,
+                                                                                              SOLVERS)
 
     solver = SOLVERS[method](func=func, y0=y0, rtol=rtol, atol=atol, **options)
-
+    solver.log_f_t = log_f_t
     if event_fn is None:
         solution = solver.integrate(t)
     else:

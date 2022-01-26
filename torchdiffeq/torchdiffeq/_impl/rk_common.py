@@ -1,19 +1,21 @@
 import bisect
 import collections
+
 import torch
+
 from .event_handling import find_event
 from .interp import _interp_evaluate, _interp_fit
+from .misc import Perturb
 from .misc import (_compute_error_ratio,
                    _select_initial_step,
                    _optimal_step_size)
-from .misc import Perturb
 from .solvers import AdaptiveStepsizeEventODESolver
-
 
 _ButcherTableau = collections.namedtuple('_ButcherTableau', 'alpha, beta, c_sol, c_error')
 
-
 _RungeKuttaState = collections.namedtuple('_RungeKuttaState', 'y1, f1, t0, t1, dt, interp_coeff')
+
+
 # Saved state of the Runge Kutta solver.
 #
 # Attributes:
@@ -38,7 +40,7 @@ class _UncheckedAssign(torch.autograd.Function):
         return grad_scratch, grad_scratch[ctx.index], None
 
 
-def _runge_kutta_step(func, y0, f0, t0, dt, t1, tableau):
+def _runge_kutta_step(func, y0, f0, t0, dt, t1, tableau, log_f_t):
     """Take an arbitrary Runge-Kutta step and estimate error.
     Args:
         func: Function to evaluate like `func(t, y)` to compute the time derivative of `y`.
@@ -74,6 +76,8 @@ def _runge_kutta_step(func, y0, f0, t0, dt, t1, tableau):
             perturb = Perturb.NONE
         yi = y0 + torch.sum(k[..., :i + 1] * (beta_i * dt), dim=-1).view_as(f0)
         f = func(ti, yi, perturb=perturb)
+        if log_f_t:
+            (f'log_f_t  = {log_f_t}')
         k = _UncheckedAssign.apply(k, f, (..., i + 1))
 
     if not (tableau.c_sol[-1] == 0 and (tableau.c_sol[:-1] == tableau.beta[-1]).all()):
@@ -155,6 +159,7 @@ class RKAdaptiveStepsizeODESolver(AdaptiveStepsizeEventODESolver):
                                        c_sol=self.tableau.c_sol.to(device=device, dtype=y0.dtype),
                                        c_error=self.tableau.c_error.to(device=device, dtype=y0.dtype))
         self.mid = self.mid.to(device=device, dtype=y0.dtype)
+        self.log_f_t = False  # hack to set a flag to track f_t evals
 
     def _before_integrate(self, t):
         t0 = t[0]
@@ -252,7 +257,7 @@ class RKAdaptiveStepsizeODESolver(AdaptiveStepsizeEventODESolver):
         # Must be arranged as doing all the step_t handling, then all the jump_t handling, in case we
         # trigger both. (i.e. interleaving them would be wrong.)
 
-        y1, f1, y1_error, k = _runge_kutta_step(self.func, y0, f0, t0, dt, t1, tableau=self.tableau)
+        y1, f1, y1_error, k = _runge_kutta_step(self.func, y0, f0, t0, dt, t1, tableau=self.tableau, log_f_t=self.log_f_t)
         # dtypes:
         # y1.dtype == self.y0.dtype
         # f1.dtype == self.y0.dtype

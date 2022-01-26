@@ -1,16 +1,16 @@
 import datetime
 import logging
+import os.path
 import time
 
 import numpy as np
 import torch
 from torch import optim
-from torchdiffeq import odeint
 from tqdm import tqdm
 
 from cnf.examples.cnf_circles import CNF
 from distributions.vector_gmm import gen_vec_gaussian_mixture
-
+from torchdiffeq import odeint
 
 # TODO
 """
@@ -94,11 +94,12 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
     return cnf_func_instance, final_loss
 
 
-def generate_samples_cnf(cnf_func, base_dist, n_samples):
+def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, log_f_t):
     z0 = base_dist.sample_n(n_samples)
     assert isinstance(cnf_func, CNF)
     log_p_z_init_t0 = get_batched_init_log_p_z(num_samples=n_samples)
-    x_gen, _ = odeint(func=cnf_func, y0=(z0, log_p_z_init_t0), t=torch.tensor([t0, t1]).type(torch.FloatTensor))
+    x_gen, _ = odeint(func=cnf_func, y0=(z0, log_p_z_init_t0), t=torch.tensor([t0, t1]).type(torch.FloatTensor),
+                      log_f_t=log_f_t)
     x_gen = x_gen[-1]
     return x_gen
 
@@ -113,27 +114,30 @@ def plot_distribution(x: torch.Tensor):
 
 
 if __name__ == '__main__':
+
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger()
+    saved_models_path = '../../models'
     # params
     t0 = 0
     t1 = 10
     hidden_dim = 32
     width = 64
     train_batch_size = 512
-    X_dim_max = 20
+    X_dim_max = 4
     lr = 1e-3
     n_iters = 100
-    n_components_gmm = 3
+    K = 3  # num GMM components
 
     # experiment with different dimensions of data
-    per_dim_count = 3
-    file = open(f"experiment_{datetime.datetime.now().isoformat()}.log", "w")
+    per_dim_count = 1
+    file = open(f"./experiments_logs/experiment_{datetime.datetime.now().isoformat()}.log", "w")
     file.write("dim,avg_train_time_sec,out_of_sample_loss,in_sample_loss\n")
     file.flush()
-    for X_dim in np.arange(1, X_dim_max + 1):
+    for X_dim in np.arange(X_dim_max, X_dim_max + 1):
+
         logger.info(f'X_dim = {X_dim} out of {X_dim_max}')
-        target_dist = gen_vec_gaussian_mixture(n_components=n_components_gmm, dim=X_dim)
+        target_dist = gen_vec_gaussian_mixture(n_components=K, dim=X_dim)
         base_dist = torch.distributions.MultivariateNormal(loc=torch.zeros(X_dim),
                                                            scale_tril=torch.diag(torch.ones(X_dim)))
         time_diff_sum = 0
@@ -148,20 +152,23 @@ if __name__ == '__main__':
                                                in_out_dim=X_dim,
                                                hidden_dim=hidden_dim, width=width, lr=1e-3, niters=n_iters,
                                                train_batch_size=train_batch_size)
+            model_name = f'cnf_func_fit_gmm_K_{K}_D_{X_dim}.pkl'
+            torch.save(cnf_func_fit, os.path.join(saved_models_path, model_name))
             end_time = time.time()
 
             time_diff_sec = end_time - start_time
             logger.info(
-                f'n_components_gmm = {n_components_gmm}, X_dim = {X_dim}, time_diff_sec = {time_diff_sec}')
+                f'n_components_gmm = {K}, X_dim = {X_dim}, time_diff_sec = {time_diff_sec}')
 
             n_test_samples = 1000
-            gen_samples = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples)
+            gen_samples = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples,
+                                               t0=t0, t1=t1)
             log_prob_test = target_dist.log_prob(x=torch.tensor(gen_samples))
             log_prob_test_avg = log_prob_test.mean(0).detach().numpy()
             logger.info(f'In-sample loss = {final_loss} , out-of-sample = {-log_prob_test_avg} , difference = '
                         f'{np.abs(log_prob_test_avg + final_loss)}')
             logger.info(
-                f'n_components_gmm = {n_components_gmm}, X_dim = {X_dim}, avg_log_prob = '
+                f'n_components_gmm = {K}, X_dim = {X_dim}, avg_log_prob = '
                 f'{log_prob_test.mean(0).detach().numpy()}')
             time_diff_sum += time_diff_sec
             log_prob_sum += log_prob_test.mean(0).detach().numpy()
