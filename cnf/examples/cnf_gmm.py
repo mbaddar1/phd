@@ -9,22 +9,10 @@ from torchdiffeq import odeint
 from tqdm import tqdm
 
 from cnf.examples.cnf_circles import CNF
-from distributions import gen_vec_gaussian_mixture
-
-# TODO
-"""
-Expressive power measuring 
-1. Train a CNF to model GMM for X random variable where X in R^(1xD) 
-2. Generate N samples, each with dimension d from trained NF (based on random latents)
-3. Generate N* samples from the original GMM model 
-4. Measure (2) : Calculate log likelihood for N given CNF 
-5. Observe the relation between measure (1) and (2) 
-6. Repeat the Experiment for Matrix / Tensor Valued Random Variables 
-i.e. X in R^(D_1xD_2) or R^(D_1xD_2x...xD_nd) 
-# https://arxiv.org/pdf/1911.02915.pdf 
-"""
+from distributions.vector_gmm import gen_vec_gaussian_mixture
 
 """
+Tech. Issues
 Got error
 Process finished with exit code 137 (interrupted by signal 9: SIGKILL)
 Possible cause : extensive memory usage
