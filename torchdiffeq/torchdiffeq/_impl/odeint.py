@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 from torch.autograd.functional import vjp
 
@@ -29,7 +30,33 @@ SOLVERS = {
 }
 
 
-def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, event_fn=None, log_f_t=False):
+class FtNumeric():
+    def __init__(self, shapes):
+        self.z_t_tensor_agg = None
+        self.t_tensor_agg = None
+        self.f_t_tensor_agg = None
+        self.z_t = []
+        self.f_t = []
+        self.t = []
+        self.shapes = shapes
+
+    def add_flat(self, z_t_flat, t, f_t_flat):
+        z_t_tensor = _flat_to_shape(z_t_flat, (), self.shapes)[0]
+        a = float(t.detach().numpy())  # 0-dim array
+        repeats = list(self.shapes[0])[0]
+        t_tensor = torch.tensor(np.repeat(a=a, repeats=repeats))
+        f_t_tensor = _flat_to_shape(f_t_flat, (), self.shapes)[0]
+        self.z_t.append(z_t_tensor)
+        self.f_t.append(f_t_tensor)
+        self.t.append(t_tensor)
+
+    def finalize(self):
+        self.z_t_tensor_agg = torch.cat(self.z_t)
+        self.t_tensor_agg = torch.cat(self.t)
+        self.f_t_tensor_agg = torch.cat(self.f_t)
+
+
+def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, event_fn=None, is_f_t_evals=False):
     """Integrate a system of ordinary differential equations.
 
     Solves the initial value problem for a non-stiff system of first order ODEs:
@@ -40,7 +67,7 @@ def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, even
 
     Output dtypes and numerical precision are based on the dtypes of the inputs `y0`.
 
-    Args:
+    :param
         func: Function that maps a scalar Tensor `t` and a Tensor holding the state `y`
             into a Tensor of state derivatives with respect to time. Optionally, `y`
             can also be a tuple of Tensors.
@@ -75,22 +102,24 @@ def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, even
                                                                                               SOLVERS)
 
     solver = SOLVERS[method](func=func, y0=y0, rtol=rtol, atol=atol, **options)
-    solver.log_f_t = log_f_t
+    ft_numeric = FtNumeric(shapes=shapes) if is_f_t_evals else None
     if event_fn is None:
-        solution = solver.integrate(t)
+
+        solution = solver.integrate(t, ft_numeric)
     else:
         event_t, solution = solver.integrate_until_event(t[0], event_fn)
         event_t = event_t.to(t)
         if t_is_reversed:
             event_t = -event_t
-
+    if ft_numeric is not None:
+        ft_numeric.finalize()
     if shapes is not None:
         solution = _flat_to_shape(solution, (len(t),), shapes)
 
     if event_fn is None:
-        return solution
+        return solution, ft_numeric
     else:
-        return event_t, solution
+        return event_t, solution, ft_numeric
 
 
 def odeint_event(func, y0, t0, *, event_fn, reverse_time=False, odeint_interface=odeint, **kwargs):

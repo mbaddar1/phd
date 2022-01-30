@@ -1,16 +1,17 @@
-import os
-import argparse
 import glob
-from PIL import Image
-import numpy as np
+import os
+
+import argparse
 import matplotlib
+import numpy as np
+from PIL import Image
+
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 from sklearn.datasets import make_circles
 import torch
 import torch.nn as nn
 import torch.optim as optim
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--adjoint', action='store_true')
@@ -35,17 +36,27 @@ class CNF(nn.Module):
     """Adapted from the NumPy implementation at:
     https://gist.github.com/rtqichen/91924063aa4cc95e7ef30b3a5491cc52
     """
+
     def __init__(self, in_out_dim, hidden_dim, width):
         super().__init__()
         self.in_out_dim = in_out_dim
         self.hidden_dim = hidden_dim
         self.width = width
         self.hyper_net = HyperNetwork(in_out_dim, hidden_dim, width)
+        self.log_f_t = False
+        self.dz_dt_log = None
+        self.log_p_z = None
+
+    def _clear_log_f_t(self):
+        self.dz_dt_log = None
+
+    def _log_f_t(self, states):
+        pass
 
     def forward(self, t, states):
         z = states[0]
+        print('FW')
         logp_z = states[1]
-
         batchsize = z.shape[0]
 
         with torch.set_grad_enabled(True):
@@ -59,7 +70,8 @@ class CNF(nn.Module):
             dz_dt = torch.matmul(h, U).mean(0)
 
             dlogp_z_dt = -trace_df_dz(dz_dt, z).view(batchsize, 1)
-
+        if self.log_f_t:
+            print('hello')
         return (dz_dt, dlogp_z_dt)
 
 
@@ -80,6 +92,7 @@ class HyperNetwork(nn.Module):
     Adapted from the NumPy implementation at:
     https://gist.github.com/rtqichen/91924063aa4cc95e7ef30b3a5491cc52
     """
+
     def __init__(self, in_out_dim, hidden_dim, width):
         super().__init__()
 
@@ -138,7 +151,7 @@ def get_batch(num_samples):
     x = torch.tensor(points).type(torch.float32).to(device)
     logp_diff_t1 = torch.zeros(num_samples, 1).type(torch.float32).to(device)
 
-    return(x, logp_diff_t1)
+    return (x, logp_diff_t1)
 
 
 if __name__ == '__main__':
@@ -275,8 +288,8 @@ if __name__ == '__main__':
                 ax3.tricontourf(*z_t1.detach().cpu().numpy().T,
                                 np.exp(logp.detach().cpu().numpy()), 200)
 
-                plt.savefig(os.path.join(args.results_dir, f"cnf-viz-{int(t*1000):05d}.jpg"),
-                           pad_inches=0.2, bbox_inches='tight')
+                plt.savefig(os.path.join(args.results_dir, f"cnf-viz-{int(t * 1000):05d}.jpg"),
+                            pad_inches=0.2, bbox_inches='tight')
                 plt.close()
 
             img, *imgs = [Image.open(f) for f in sorted(glob.glob(os.path.join(args.results_dir, f"cnf-viz-*.jpg")))]

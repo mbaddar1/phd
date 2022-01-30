@@ -1,8 +1,9 @@
+import warnings
 from enum import Enum
-import math
+
 import numpy as np
 import torch
-import warnings
+
 from .event_handling import combine_event_functions
 
 
@@ -133,9 +134,18 @@ class _TupleFunc(torch.nn.Module):
         super(_TupleFunc, self).__init__()
         self.base_func = base_func
         self.shapes = shapes
+        self.log_f_t = False  # a hack to log f_t evals
+        self.f_t_vals = []
+        self.z_t_vals = []
+        self.t_vals = []
 
     def forward(self, t, y):
+        shaped_y = _flat_to_shape(y, (), self.shapes)
         f = self.base_func(t, _flat_to_shape(y, (), self.shapes))
+        if self.log_f_t:
+            self.z_t_vals.append(shaped_y[0])
+            self.t_vals.append(t)
+            self.f_t_vals.append(f[0])
         return torch.cat([f_.reshape(-1) for f_ in f])
 
 
@@ -190,6 +200,20 @@ class _PerturbFunc(torch.nn.Module):
 
 
 def _check_inputs(func, y0, t, rtol, atol, method, options, event_fn, SOLVERS):
+    """
+
+    :param func:
+    :param y0:
+    :param t:
+    :param rtol:
+    :param atol:
+    :param method:
+    :param options:
+    :param event_fn:
+    :param SOLVERS:
+    :param log_f_t: a hack to log f_t evals # fixme
+    :return:
+    """
 
     if event_fn is not None:
         if len(t) != 2:
@@ -208,6 +232,7 @@ def _check_inputs(func, y0, t, rtol, atol, method, options, event_fn, SOLVERS):
         atol = _tuple_tol('atol', atol, shapes)
         y0 = torch.cat([y0_.reshape(-1) for y0_ in y0])
         func = _TupleFunc(func, shapes)
+
         if event_fn is not None:
             event_fn = _TupleInputOnlyFunc(event_fn, shapes)
     _assert_floating('y0', y0)
@@ -241,6 +266,7 @@ def _check_inputs(func, y0, t, rtol, atol, method, options, event_fn, SOLVERS):
         def _norm(tensor):
             y = _flat_to_shape(tensor, (), shapes)
             return norm(y)
+
         options['norm'] = _norm
 
     else:

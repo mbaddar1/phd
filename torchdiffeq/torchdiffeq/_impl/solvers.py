@@ -10,7 +10,6 @@ class AdaptiveStepsizeODESolver(metaclass=abc.ABCMeta):
     def __init__(self, dtype, y0, norm, **unused_kwargs):
         _handle_unused_kwargs(self, unused_kwargs)
         del unused_kwargs
-        self.log_f_t = False  # a hack to set a flag to log f_t evaluations
         self.y0 = y0
         self.dtype = dtype
 
@@ -23,13 +22,13 @@ class AdaptiveStepsizeODESolver(metaclass=abc.ABCMeta):
     def _advance(self, next_t):
         raise NotImplementedError
 
-    def integrate(self, t):
+    def integrate(self, t, ft_numeric):
         solution = torch.empty(len(t), *self.y0.shape, dtype=self.y0.dtype, device=self.y0.device)
         solution[0] = self.y0
         t = t.to(self.dtype)
         self._before_integrate(t)
         for i in range(1, len(t)):
-            solution[i] = self._advance(t[i])
+            solution[i] = self._advance(t[i], ft_numeric)
         return solution
 
 

@@ -43,7 +43,13 @@ class CNF(nn.Module):
         self.in_out_dim = in_out_dim
         self.hidden_dim = hidden_dim
         self.width = width
+
         self.hyper_net = HyperNetwork(in_out_dim, hidden_dim, width)
+
+        #### Hack to log f_t evals
+        self.log_f_t = False
+        self.dz_dt_tensor_eval = None
+        self.logpz_tensor_eval = None
 
     def forward(self, t, states):
         z = states[0]
@@ -62,7 +68,8 @@ class CNF(nn.Module):
             dz_dt = torch.matmul(h, U).mean(0)
 
             dlogp_z_dt = -trace_df_dz(dz_dt, z).view(batchsize, 1)
-
+        if self.log_f_t:
+            pass
         return dz_dt, dlogp_z_dt
 
 

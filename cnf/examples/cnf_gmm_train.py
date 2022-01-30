@@ -1,6 +1,7 @@
 import datetime
 import logging
 import os.path
+import pickle
 import time
 
 import numpy as np
@@ -94,12 +95,14 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
     return cnf_func_instance, final_loss
 
 
-def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, log_f_t):
+def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, is_f_t_evals):
     z0 = base_dist.sample_n(n_samples)
     assert isinstance(cnf_func, CNF)
     log_p_z_init_t0 = get_batched_init_log_p_z(num_samples=n_samples)
-    x_gen, _ = odeint(func=cnf_func, y0=(z0, log_p_z_init_t0), t=torch.tensor([t0, t1]).type(torch.FloatTensor),
-                      log_f_t=log_f_t)
+    x_gen, ft_numeric = odeint(func=cnf_func, y0=(z0, log_p_z_init_t0),
+                               t=torch.tensor([t0, t1]).type(torch.FloatTensor), is_f_t_evals=is_f_t_evals)
+    pickle.dump(obj=ft_numeric, file=open("./data/ft.pkl", 'wb'))
+    ft_loaded = pickle.load(file=open("./data/ft.pkl", 'rb'))
     x_gen = x_gen[-1]
     return x_gen
 
@@ -172,8 +175,12 @@ if __name__ == '__main__':
                 f'{log_prob_test.mean(0).detach().numpy()}')
             time_diff_sum += time_diff_sec
             log_prob_sum += log_prob_test.mean(0).detach().numpy()
-            # in_out_sample_loss_diff_sum += np.abs(log_prob_test_avg + final_loss)
             in_sample_loss_sum += final_loss
+
+            ## Generate samples ##
+            cnf_func_fit.log_f_t = True
+            generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples, t0=t0, t1=t1)
+
         file.write(
             f"{X_dim},{time_diff_sum / per_dim_count},{-log_prob_sum / per_dim_count},"
             f"{in_sample_loss_sum / per_dim_count}\n")

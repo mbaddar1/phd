@@ -40,7 +40,7 @@ class _UncheckedAssign(torch.autograd.Function):
         return grad_scratch, grad_scratch[ctx.index], None
 
 
-def _runge_kutta_step(func, y0, f0, t0, dt, t1, tableau, log_f_t):
+def _runge_kutta_step(func, y0, f0, t0, dt, t1, tableau, ft_numeric):
     """Take an arbitrary Runge-Kutta step and estimate error.
     Args:
         func: Function to evaluate like `func(t, y)` to compute the time derivative of `y`.
@@ -76,8 +76,9 @@ def _runge_kutta_step(func, y0, f0, t0, dt, t1, tableau, log_f_t):
             perturb = Perturb.NONE
         yi = y0 + torch.sum(k[..., :i + 1] * (beta_i * dt), dim=-1).view_as(f0)
         f = func(ti, yi, perturb=perturb)
-        if log_f_t:
-            (f'log_f_t  = {log_f_t}')
+        # Hack to store ft numeric evals
+        if ft_numeric is not None:
+            ft_numeric.add_flat(yi, ti, f)
         k = _UncheckedAssign.apply(k, f, (..., i + 1))
 
     if not (tableau.c_sol[-1] == 0 and (tableau.c_sol[:-1] == tableau.beta[-1]).all()):
@@ -159,7 +160,6 @@ class RKAdaptiveStepsizeODESolver(AdaptiveStepsizeEventODESolver):
                                        c_sol=self.tableau.c_sol.to(device=device, dtype=y0.dtype),
                                        c_error=self.tableau.c_error.to(device=device, dtype=y0.dtype))
         self.mid = self.mid.to(device=device, dtype=y0.dtype)
-        self.log_f_t = False  # hack to set a flag to track f_t evals
 
     def _before_integrate(self, t):
         t0 = t[0]
@@ -191,12 +191,12 @@ class RKAdaptiveStepsizeODESolver(AdaptiveStepsizeEventODESolver):
         self.next_step_index = min(bisect.bisect(self.step_t.tolist(), t[0]), len(self.step_t) - 1)
         self.next_jump_index = min(bisect.bisect(self.jump_t.tolist(), t[0]), len(self.jump_t) - 1)
 
-    def _advance(self, next_t):
+    def _advance(self, next_t, ft_numeric):
         """Interpolate through the next time point, integrating as necessary."""
         n_steps = 0
         while next_t > self.rk_state.t1:
             assert n_steps < self.max_num_steps, 'max_num_steps exceeded ({}>={})'.format(n_steps, self.max_num_steps)
-            self.rk_state = self._adaptive_step(self.rk_state)
+            self.rk_state = self._adaptive_step(self.rk_state, ft_numeric)
             n_steps += 1
         return _interp_evaluate(self.rk_state.interp_coeff, self.rk_state.t0, self.rk_state.t1, next_t)
 
@@ -214,7 +214,7 @@ class RKAdaptiveStepsizeODESolver(AdaptiveStepsizeEventODESolver):
         interp_fn = lambda t: _interp_evaluate(self.rk_state.interp_coeff, self.rk_state.t0, self.rk_state.t1, t)
         return find_event(interp_fn, sign0, self.rk_state.t0, self.rk_state.t1, event_fn, self.atol)
 
-    def _adaptive_step(self, rk_state):
+    def _adaptive_step(self, rk_state, ft_numeric):
         """Take an adaptive Runge-Kutta step to integrate the ODE."""
         y0, f0, _, t0, dt, interp_coeff = rk_state
         t1 = t0 + dt
@@ -257,7 +257,8 @@ class RKAdaptiveStepsizeODESolver(AdaptiveStepsizeEventODESolver):
         # Must be arranged as doing all the step_t handling, then all the jump_t handling, in case we
         # trigger both. (i.e. interleaving them would be wrong.)
 
-        y1, f1, y1_error, k = _runge_kutta_step(self.func, y0, f0, t0, dt, t1, tableau=self.tableau, log_f_t=self.log_f_t)
+        y1, f1, y1_error, k = _runge_kutta_step(self.func, y0, f0, t0, dt, t1, tableau=self.tableau,
+                                                ft_numeric=ft_numeric)
         # dtypes:
         # y1.dtype == self.y0.dtype
         # f1.dtype == self.y0.dtype
