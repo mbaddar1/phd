@@ -1,0 +1,87 @@
+\usepackage[usenames,dvipsnames]{xcolor}
+\definecolor{light-gray}{gray}{0.95}
+
+%% Math Packages %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{verbatim}
+
+\usepackage{mdframed}
+
+\usepackage{fouridx}
+
+% Statistical commands
+\newcommand{\Exp}{\mathbf{E}}
+\newcommand{\Var}{\mathbf{Var}}
+\newcommand{\Cov}{\mathbf{Cov}}
+
+% Number Representation
+\newcommand{\complex}[3]{#1 #2 \mathit{i}\,#3}
+
+% Set Representation
+\newcommand{\field}[1]{\mathbb{#1}}
+
+% Algebra
+\DeclareMathOperator*{\tr}{trace} % Trace
+\DeclareMathOperator*{\W}{W} % Wronski determinant
+\DeclareMathOperator*{\diff}{d} % Differentiation
+
+% Theorems
+\newcommand{\myqed}{\begin{flushright}$\square$ \end{flushright}}
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{mydef}{Definition}[section]
+\newenvironment{myproof}{\noindent \textbf{Proof.}}{\myqed}
+\newmdtheoremenv[outerlinewidth=1,leftmargin=5,%
+	rightmargin=5,backgroundcolor=light-gray,%
+	outerlinecolor=black,innertopmargin=5pt,%
+	splittopskip=\topskip,skipbelow=\baselineskip,%
+	skipabove=\baselineskip,ntheorem]{exa}%
+	{Example}[section]
+
+
+% Alter some LaTeX defaults for better treatment of figures:
+% See p.105 of "TeX Unbound" for suggested values.
+% See pp. 199-200 of Lamport's "LaTeX" book for details.
+%   General parameters, for ALL pages:
+\renewcommand{\topfraction}{0.9}	% max fraction of floats at top
+\renewcommand{\bottomfraction}{0.8}	% max fraction of floats at bottom
+%   Parameters for TEXT pages (not float pages):
+\setcounter{topnumber}{2}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{4}     % 2 may work better
+\setcounter{dbltopnumber}{2}    % for 2-column pages
+\renewcommand{\dbltopfraction}{0.9}	% fit big float above 2-col. text
+\renewcommand{\textfraction}{0.07}	% allow minimal text w. figs
+%   Parameters for FLOAT pages (not text pages):
+\renewcommand{\floatpagefraction}{0.7}	% require fuller float pages
+%N.B.: floatpagefraction MUST be less than topfraction !!
+\renewcommand{\dblfloatpagefraction}{0.7}	% require fuller float pages
+
+% Listing setting
+\usepackage{listings}
+\usepackage{color}
+\lstset{
+  language = matlab,                  % The programming language to be used
+  frame = single,                     % Creates a frame around the listing
+  % Options: single, double, shadowbow, t=top, b=bottom, r=right, l=left
+  frameround=tfff,                    % Rounded corners of the frame
+  showspaces = false,                 % Leave spaces blank?
+  showstringspaces = false,           % Leave spaces in strings blank?
+  breaklines = true,                  % Break lines that are too long?
+  extendedchars = true,               % Includes danish characters?
+  numbers = left,                     % Shows linenumbers?
+  stepnumber = 1,                     % Linenumbers interval
+  numberstyle = \footnotesize,        % The label size
+  tabsize = 3,                        % Tabulator size (# of spaces)
+  %xleftmargin = -20pt,               % Modification of left margin
+  %xrightmargin = -20pt,              % Modification of right margin
+  basicstyle = \ttfamily\small,       % The text style and size of the code
+  commentstyle = \color[rgb]{0,0.5,0},% The style and color of the comments
+  stringstyle = \color[rgb]{.5,0,.5},         % String colors
+  keywordstyle = \bfseries\color[rgb]{0,0,1}, % Keyword colors
+  keywords = {function,while,for,end,if,else,elseif}
+  %%% Emphasize user-defined words:
+  %emph = {[1] word1, word2 }, emphstyle = {[1] \bfseries\color[cmyk]{0.20,1.00,1.00,0.10}},
+  %emph = {[2] wordA, wordB }, emphstyle = {[2] \color[cmyk]{0.20,1.00,1.00,0.10}},
+}

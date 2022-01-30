@@ -1,0 +1,25 @@
+\begin{thebibliography}{1}
+
+\bibitem{gerritsma_time-dependent_2010}
+{\sc Gerritsma, M., van~der Steen, J., Vos, P., and Karniadakis, G.}
+\newblock Time-dependent generalized polynomial chaos.
+\newblock {\em Journal of Computational Physics 229}, 22 (Nov. 2010),
+  8333--8363.
+
+\bibitem{press_numerical_2007}
+{\sc Press, W.~H.}
+\newblock {\em Numerical Recipes: The Art of Scientific Computing}.
+\newblock Cambridge University Press, Sept. 2007.
+
+\bibitem{shen_recent_2009}
+{\sc Shen, J., and Wang, L.~L.}
+\newblock Some recent advances on spectral methods for unbounded domains.
+\newblock {\em Communications in Computational Physics 5}, 2-4 (2009),
+  195--241.
+
+\bibitem{stoer_introduction_2002}
+{\sc Stoer, J., and Bulirsch, R.}
+\newblock {\em Introduction to Numerical Analysis}.
+\newblock Springer, Aug. 2002.
+
+\end{thebibliography}

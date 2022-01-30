@@ -1,0 +1,5 @@
+numpy
+scipy
+Sphinx
+sphinxcontrib-bibtex
+orthpol >= 0.2.2 --install-option="install"

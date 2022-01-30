@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+
+<!-- This file is part of SpectralToolbox. -->
+
+<!-- SpectralToolbox is free software: you can redistribute it and/or modify -->
+<!-- it under the terms of the LGNU Lesser General Public License as published by -->
+<!-- the Free Software Foundation, either version 3 of the License, or -->
+<!-- (at your option) any later version. -->
+
+<!-- SpectralToolbox is distributed in the hope that it will be useful, -->
+<!-- but WITHOUT ANY WARRANTY; without even the implied warranty of -->
+<!-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the -->
+<!-- LGNU Lesser General Public License for more details. -->
+
+<!-- You should have received a copy of the LGNU Lesser General Public License -->
+<!-- along with SpectralToolbox.  If not, see <http://www.gnu.org/licenses/>. -->
+
+<!-- DTU UQ Library -->
+<!-- Copyright (C) 2012-2015 The Technical University of Denmark -->
+<!-- Scientific Computing Section -->
+<!-- Department of Applied Mathematics and Computer Science -->
+
+<!-- Copyright (C) 2015-2017 Massachusetts Institute of Technology -->
+<!-- Uncertainty Quantification group -->
+<!-- Department of Aeronautics and Astronautics -->
+
+<!-- Author: Daniele Bigoni -->
+
+<xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:st="SpectralToolbox"
+    targetNamespace="SpectralToolbox"
+    elementFormDefault="qualified">
+
+  <xs:element name="basis" type="st:sc_basis"/>
+
+  <xs:complexType name="sc_basis">
+    <xs:choice>
+      <xs:element name="HermiteProbabilistsPolynomial"
+                  type="st:OrthogonalBasis"/>
+      <xs:element name="ConstantExtendedHermiteProbabilistsFunction"
+                  type="st:OrthogonalBasis"/>
+      <xs:element name="HermiteProbabilistsRadialBasisFunction"
+                  type="st:RBFelement"/>
+      <xs:element name="ConstantExtendedHermiteProbabilistsRadialBasisFunction"
+                  type="st:RBFelement"/>
+      <xs:element name="LinearExtendedHermiteProbabilistsRadialBasisFunction"
+                  type="st:RBFelement"/>
+    </xs:choice>
+  </xs:complexType>
+
+  <xs:complexType name="OrthogonalBasis">
+    <xs:attribute name="normalized" type="xs:boolean"/>
+  </xs:complexType>
+  
+  <xs:complexType name="RBFelement">
+    <xs:attribute name="nbasis" type="xs:positiveInteger" use="required"/>
+    <xs:attribute name="scale" type="xs:decimal" default="1.0"/> 
+  </xs:complexType>
+
+</xs:schema>

@@ -1,0 +1,7 @@
+include *.txt COPYING COPYING.LESSER
+recursive-include Docs *
+recursive-include TestCode *
+recursive-include UnitTests *
+recursive-include Examples *
+recursive-include SpectralToolbox *.xsd
+exclude .hgignore

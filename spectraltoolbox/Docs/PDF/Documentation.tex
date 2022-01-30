@@ -1,0 +1,452 @@
+\newcommand{\Title}{On Generalized Polynomial Chaos}
+\newcommand{\TitleHeader}{}
+\newcommand{\authorsHeader}{}
+\newcommand{\authorsTitle}{Daniele Bigoni}
+\newcommand{\courseTitle}{Documentation of the Spectral Toolbox}
+\newcommand{\courseHeader}{}
+
+%% Based on a TeXnicCenter-Template by Tino Weinkauf.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% HEADER
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[a4paper,10pt]{article}
+\usepackage[a4paper]{geometry}
+% Alternative Options:
+%	Paper Size: a4paper / a5paper / b5paper / letterpaper / legalpaper / executivepaper
+% Duplex: oneside / twoside
+% Base Font Size: 10pt / 11pt / 12pt
+\usepackage{fancyhdr}
+
+%% Language %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[USenglish]{babel} %francais, polish, spanish, ...
+\usepackage[T1]{fontenc}
+\usepackage[ansinew]{inputenc}
+\usepackage{subfig}
+
+%% Packages for Graphics & Figures %%%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage{graphicx} %%For loading graphic files
+%\usepackage{subfig} %%Subfigures inside a figure
+%\usepackage{tikz} %%Generate vector graphics from within LaTeX
+
+%% Please note:
+%% Images can be included using \includegraphics{filename}
+%% resp. using the dialog in the Insert menu.
+%% 
+%% The mode "LaTeX => PDF" allows the following formats:
+%%   .jpg  .png  .pdf  .mps
+%% 
+%% The modes "LaTeX => DVI", "LaTeX => PS" und "LaTeX => PS => PDF"
+%% allow the following formats:
+%%   .eps  .ps  .bmp  .pict  .pntg
+
+\input{extensions.tex}
+
+%% Line Spacing %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage{setspace}
+%\singlespacing        %% 1-spacing (default)
+%\onehalfspacing       %% 1,5-spacing
+%\doublespacing        %% 2-spacing
+
+
+%% Other Packages %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\usepackage{a4wide} %%Smaller margins = more text per page.
+%\usepackage{fancyhdr} %%Fancy headings
+%\usepackage{longtable} %%For tables, that exceed one page
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Remarks
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% TODO:
+% 1. Edit the used packages and their options (see above).
+% 2. If you want, add a BibTeX-File to the project
+%    (e.g., 'literature.bib').
+% 3. Happy TeXing!
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Options / Modifications
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\input{options} %You need a file 'options.tex' for this
+%% ==> TeXnicCenter supplies some possible option files
+%% ==> with its templates (File | New from Template...).
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% DOCUMENT
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+\pagestyle{empty} %No headings for the first pages.
+
+
+%% Title Page %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ==> Write your text here or include other files.
+
+%% The simple version:
+\title{\course \\ \Title}
+\author{\authorsTitle}
+
+\begin{titlepage}
+\begin{center}
+\includegraphics[height=1.00in]{tex_dtu_logo}\\[1.5cm]
+\textsc{\LARGE Technical University of Denmark}\\[3.0cm]
+\textsc{\Large \Title}\\[1.0cm]
+\textsc{\large \courseTitle}\\[3.0cm]
+\begin{flushleft} \large
+\emph{Author:}\\
+\authorsTitle \\
+
+\end{flushleft}
+\vfill
+% Bottom of the page
+{\large \today}
+%\date{} %%If commented, the current date is used.
+\end{center}
+\end{titlepage}
+
+%% The nice version:
+%\input{titlepage} %%You need a file 'titlepage.tex' for this.
+%% ==> TeXnicCenter supplies a possible titlepage file
+%% ==> with its templates (File | New from Template...).
+
+
+%% Inhaltsverzeichnis %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\tableofcontents %Table of contents
+\cleardoublepage %The first chapter should start on an odd page.
+
+\pagestyle{fancy} %Now display headings: headings / fancy / ...
+
+
+
+%% Chapters %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ==> Write your text here or include other files.
+
+%\input{intro} %You need a file 'intro.tex' for this.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% ==> Some hints are following:
+
+\section{Introduction}
+Why this paper?
+Why Spectral Methods?
+Why a Spectral Toolbox?
+Why Python?
+
+\section{Orthogonal Polynomials}
+Orthogonal polynomials can be used in order to approximate functions in space. There exist infinite sets of orthogonal polynomials, however some of them have been studied extensively due to their simplicity and performances.\\
+
+The Spectral Toolbox includes several polynomials for bounded as well as for unbounded domains. The available polynomials will be presented in the following. More information about orthogonal polynomials can be found in literature (e.g. \cite{shen_recent_2009}).
+
+\subsection{Jacobi Polynomials}
+
+\subsubsection{Legendre Polynomials}
+
+\subsubsection{Chebyshev Polynomials}
+
+\subsection{Hermite Polynomials}
+
+Hermite polynomials span the interval $I:=(-\infty,\infty)$.
+
+\subsubsection{Hermite Physicists' Polynomials}
+The Hermite Physicists Polynomials denoted by $H_n(x)$ are eigenfunctions of the Sturm-Liouville problem:
+\begin{equation}
+e^{x^2}\left( e^{-x^2} H_n'(x) \right)' + \lambda_n H_n(x) = 0 , \qquad \forall x \in I:=(-\infty,\infty)
+\end{equation}
+
+\begin{itemize}
+\item \textbf{Recurrence relation} 
+	\begin{equation}
+		\begin{cases}
+		H_0(x) = 1 \\
+		H_1(x) = 2x \\
+		H_{n+1}(x) = 2xH_n(x) - 2nH_{n-1}(x)
+		\end{cases}
+	\end{equation}
+\item \textbf{Derivatives} 
+	\begin{equation}
+		\begin{cases}
+		H_n^{(k)}(x) = 2nH_{n-1}^{(k-1)}(x) \\
+		H_n^{(0)}(x) = H_n(x) \\
+		H_0^{(k)}(x) = 0 \qquad \text{for $k>0$}
+		\end{cases}
+	\end{equation}
+\item \textbf{Orthogonality} 
+	\begin{align}
+		w(x) &= e^{-x^2} \\
+		\gamma_n &= \sqrt{\pi} 2^n n!
+	\end{align}
+\item \textbf{Gauss Quadrature points and weights}\\
+	The Gauss points $\lbrace x_j \rbrace_{j=0}^N$ corresponding to $H_{N+1}(x)$ can be obtained using the Golub-Welsh algorithm \cite{press_numerical_2007} where:
+	\begin{equation}\label{eq:OrthPoly:HermitePolyPhy:GQx}
+	a_j = 0 \qquad b_j = \frac{j}{2}
+	\end{equation}
+	The Gauss weights are obtained by:
+	\begin{align}
+	w_j = \frac{\lambda_N}{\lambda_{N-1}} \frac{(H_N(x),H_N(x))}{H_N(x_j)H_{N+1}'(x_j)} = \frac{\gamma_N}{(N+1)H_N^2(x_j)}
+	\end{align}
+\end{itemize}
+
+\subsubsection{Hermite Functions}
+Hermite Functions are used because of their better behavior respect to Hermite Polynomials at infinity.
+
+\begin{itemize}
+\item \textbf{Recurrence relation}
+	\begin{equation}
+		\begin{cases}
+		\tilde{H}_0(x) = e^{-x^2/2}\\
+		\tilde{H}_1(x) = \sqrt{2} x e^{-x^2/2}\\
+		\tilde{H}_{n+1}(x) = x \sqrt{\frac{2}{n+1}} \tilde{H}_n(x) - \sqrt{\frac{n}{n+1}} \tilde{H}_{n-1}(x), \qquad n \geq 1
+		\end{cases}
+	\end{equation}
+\item \textbf{Derivatives}\\
+	The recursion relation for the $k$-th derivative of the function of order $n$ is:
+	\begin{equation}
+		\tilde{H}_n^{(k)}(x) = \sqrt{\frac{n}{2}}\tilde{H}_{n-1}^{(k-1)}(x) - \sqrt{\frac{n+1}{2}}\tilde{H}_{n+1}^{(k-1)}(x)
+	\end{equation}
+	Using this recursion formula we end up having an expression involving only Hermite Functions $ \tilde{H}_n^{(0)}(x) $, that can be computed using the recurrence relation, and derivatives of the first Hermite Function $ \tilde{H}_0^{(k)} $ that have the following form:
+	\begin{equation}
+		\tilde{H}_0^{(k)} = a_0 e^{-x^2/2} + a_1 x e^{-x^2/2} + a_2 x^2 e^{-x^2/2} + \ldots + a_k x^k e^{-x^2/2} 
+	\end{equation}
+	The values $ \left\lbrace a_i \right\rbrace_{i=0}^k $ can be found using the following table:
+	\begin{center}
+	\begin{tabular}{c|c|c|c|c|c|c|c|c|c|c}
+		$k$ & $a_0$ & $a_1$ & $a_2$ & $a_3$ & $a_4$ & $a_5$ & $a_6$ & $a_7$ & $a_8$ & $\ldots$ \\ \hline
+		0 & 1 & & & & & & & & & $\ldots$ \\ \hline
+		1 & & -1 & & & & & & & & $\ldots$ \\ \hline
+		2 & -1 & & 1 & & & & & & & $\ldots$ \\ \hline
+		3 & & 3 & & -1 & & & & & & $\ldots$ \\ \hline
+		4 & 3 & & -6 & & 1 & & & & & $\ldots$ \\ \hline
+		5 & & -15 & & 10 & & -1 & & & & $\ldots$ \\ \hline
+		6 & -15 & & 45 & & -15 & & 1 & & & $\ldots$ \\ \hline
+		7 & & 105 & & -105 & & 21 & & -1 & & $\ldots$ \\ \hline
+		8 & 105 & & -420 & & 210 & & -28 & & 1 & $\ldots$ \\ \hline
+		$\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & $\vdots$ & 
+	\end{tabular}
+	\end{center}
+	that can be generated iteratively using the following rules:
+	\begin{equation*}
+		\begin{cases}
+		A(0,0) = 1\\
+		A(i,j) = 0 \qquad & \text{if $ i<j $}\\
+		A(i,j) = A(i,j) - A(i-1,j-1) \qquad & \text{if $ j \neq 0 $}\\
+		A(i,j) = A(i,j) + A(i-1,j+1) (j+1) \qquad & \text{if $i > j$}
+		\end{cases}
+	\end{equation*}
+	\item \textbf{Orthogonality}\\
+		\begin{align}
+			w(x) &= 1 \\
+			\gamma_n &= \sqrt{\pi}
+		\end{align}
+	\item \textbf{Gauss Quadrature points and weights}
+		The Gauss points $\lbrace \tilde{x}_j \rbrace_{j=0}^N$ corresponding to $\tilde{H}_{N+1}(x)$ can be obtained using the Golub-Welsh algorithm \cite{press_numerical_2007} where:
+		\begin{equation}
+			a_j = 0 \qquad b_j = \frac{j}{2}
+		\end{equation}
+		These points are exactly the same of the Hermite Polynomials in \eqref{eq:OrthPoly:HermitePolyPhy:GQx}.\\
+		The Gauss weights are obtained by:
+		\begin{equation}
+			\tilde{w}_j = \frac{\gamma_N}{(N+1)\tilde{H}_N^2(x_j)}
+		\end{equation}
+\end{itemize}
+
+\subsubsection{Hermite Probabilists' Polynomials}
+The Hermite Physicists Polynomials denoted by $H_n(x)$ are eigenfunctions of the Sturm-Liouville problem:
+\begin{equation}
+\left( e^{-x^2} He_n'(x) \right)' + \lambda_n e^{-x^2} He_n(x) = 0 , \qquad \forall x \in I:=(-\infty,\infty) \wedge \lambda \geq 0
+\end{equation}
+
+\begin{itemize}
+	\item \textbf{Recurrence relation}
+		\begin{equation}
+			\begin{cases}
+			He_0(x) = 1 \\
+			He_1(x) = x \\
+			He_{n+1}(x) = xHe_n(x) - nHe_{n-1}(x)
+			\end{cases}
+		\end{equation}
+	\item \textbf{Derivatives} 
+		\begin{equation}
+			\begin{cases}
+			He_n^{(k)}(x) = nHe_{n-1}^{(k-1)}(x) \\
+			He_n^{(0)}(x) = He_n(x) \\
+			He_0^{(k)}(x) = 0 \qquad \text{for $k>0$}
+			\end{cases}
+		\end{equation}
+	\item \textbf{Orthogonality} 
+		\begin{align}
+			w(x) &= \frac{1}{\sqrt{2\pi}} e^{-x^2/2} \\
+			\gamma_n &= n!
+		\end{align}
+	\item \textbf{Gauss Quadrature points and weights}\\
+		The Gauss points $\lbrace x_j \rbrace_{j=0}^N$ corresponding to $He_{N+1}(x)$ can be obtained using the Golub-Welsh algorithm \cite{press_numerical_2007} where:
+		\begin{equation}
+			a_j = 0 \qquad b_j = j
+		\end{equation}
+		The Gauss weights are obtained by:
+		\begin{equation}
+			w_j = \frac{\gamma_N}{(N+1)He_N^2(x_j)}
+		\end{equation}
+\end{itemize}
+
+\subsection{Laguerre Polynomials}
+
+\section{Generalized Polynomial Chaos}
+
+\begin{exa}[Stochastic Test Equation]\label{exa:StochasticTestEquation-gPC}
+\mbox{}\\
+Consider the stochastic test equation
+\begin{align}
+	&\frac{du(t,\xi)}{dt} = -k(\xi) u(t,\xi), \qquad u(0,\xi) = u_0\label{eq:exa:StochasticTestEquation} \\
+	&\xi \sim \mathcal{U}(-1,1), \qquad \rho_\xi(\xi)= \frac{1}{2}, \qquad k(\xi) = \frac{1}{2}\xi + \frac{1}{2} \notag
+\end{align}
+where the decay rate is uniformly distributed in $I \in [0,1]$. Let's apply \textbf{non-normalized Legendre-chaos} on the random input as well as on the function $u(t,\xi)$, where $\left\lbrace J_i^{(0,0)}(\xi) \right\rbrace_{i=0}^N $ are the orthogonal Legendre basis functions.
+\begin{align}
+	k(\xi) &\approx k_N(\xi) = \sum_{i=0}^N \hat{k}_i J_i^{(0,0)} \\
+		&\hat{k}_i = \frac{1}{\gamma_i} \int_{-1}^{1} k(\xi)J_i^{(0,0)}(\xi)w(\xi)d\xi \approx A^T k(\underline{\xi}) \\
+	u(t,\xi) &\approx u_N(t,\xi) = \sum_{i=0}^N \hat{u}_i(t) J_i^{(0,0)} \\
+		&\hat{u}_i(t) = \frac{1}{\gamma_i} \int_{-1}^{1} u(t,\xi)J_i^{(0,0)}(\xi)w(\xi)d\xi \approx A^T u(t,\underline{\xi})
+\end{align}
+where $ A_{j,i} = \frac{J_i^{(0,0)}(\xi_j)}{\gamma_i} w_j $ and $\left\lbrace \xi_i, w_i \right\rbrace_{i=0}^N $ is a set of quadrature points. The \textbf{gPC-expansion} of \eqref{eq:exa:StochasticTestEquation} is given by:
+\begin{align}
+	&\Exp\left[ \frac{du(t,\xi)}{dt} J_k^{(0,0)}(\xi) \right]_{\rho_\xi(\xi)} = \Exp\left[ -k(\xi)u(t,\xi)J_k^{(0,0)}(\xi) \right]_{\rho_\xi(\xi)}\\
+	&\int_{-1}^1 \sum_{i=0}^N \frac{d\hat{u}_i(t,\xi)}{dt} J_i^{(0,0)}(\xi) J_k^{(0,0)}(\xi) \rho_\xi(\xi)d\xi = \\ &-\int_{-1}^1 \sum_{i,j=0}^N \hat{k}_i \hat{u}_j(t) J_i^{(0,0)}(\xi) J_j^{(0,0)}(\xi) J_k^{(0,0)}(\xi) \rho_\xi(\xi) d\xi \notag \\
+	& \frac{d\hat{u}_k(t)}{dt} = -\frac{1}{\gamma_k} \sum_{i,j=0}^N \hat{k}_i \hat{u}_j(t) \underbrace{\int_{-1}^1 J_i^{(0,0)}(\xi) J_j^{(0,0)}(\xi) J_k^{(0,0)}(\xi) w(\xi) d\xi}_{\approx \sum_l^{2N} J_i^{(0,0)}(\xi_l) J_j^{(0,0)}(\xi_l) J_k^{(0,0)}(\xi_l) w_l = e_{ijk}}
+\end{align}
+The \textbf{initial conditions} for the gPC-expansion are:
+\begin{equation}
+	\hat{u}_i(0) = \frac{1}{\gamma_i} \int_{-1}^1 u(0,\xi) J_i^{(0,0)}(\xi) w(\xi) d\xi = 
+	\begin{cases}
+	u_0 \qquad & i=0\\
+	0 \qquad & i \geq 1
+	\end{cases}
+\end{equation}
+The \textbf{expectation} of the solution is given by
+\begin{align}
+	\Exp\left[ u(t,\xi) \right]_{\rho_\xi} &= \int_{-1}^1 u(t,\xi) \rho_\xi(\xi) d\xi \approx \int_{-1}^1 \sum_{i=0}^N \hat{u}_i(t) J_i^{(0,0)}(\xi) \rho_\xi(\xi) d\xi \\
+	&= \sum_{i=0}^N \hat{u}_i(t) \frac{1}{2} \int_{-1}^1 J_i^{(0,0)}(\xi) w(\xi) d\xi = \hat{u}_0(t) \notag
+\end{align}
+The \textbf{variance} of the solution is given by
+\begin{align}
+	\Var [u(t,\xi)]_{\rho_\xi(\xi)} &= \Exp \left[ \left( u(t,\xi) - \mu_u(t) \right)^2 \right]_{\rho_\xi(\xi)} \\
+	&\approx \Exp [ u_N^2(t,\xi) ]_{\rho_\xi(\xi)} - 2 \mu_u(t) \Exp [u_N(t,\xi)]_{\rho_\xi(\xi)} + \mu_u^2(t) \notag \\
+	& = \int_{-1}^1 \sum_{i,j=0}^N \hat{u}_i(t) \hat{u}_j(t) J_i^{(0,0)}(\xi) J_j^{(0,0)}(\xi) \rho_\xi(\xi) d\xi - \mu_u^2(t) \notag \\
+	& = \frac{1}{2} \sum_{i=0}^N \hat{u}_i^2(t) \gamma_i - \hat{u}_0^2(t) = \frac{1}{2} \sum_{i=1}^N \hat{u}_i^2(t) \gamma_i \notag
+\end{align}
+If \textbf{normalized Legendre-chaos} is employed, then some modifications to the equations have to be considered. The normalized basis are given by $ \tilde{J}_i^{(0,0)}(\xi) = \frac{J_i^{(0,0)}(\xi)}{\sqrt{\gamma_i}} $, thus
+\begin{align}
+	\hat{k}_i = \int_{-1}^{1} k(\xi)\tilde{J}_i^{(0,0)}(\xi)w(\xi)d\xi \approx A^T k(\underline{\xi}) \label{eq:gPC-kExpansion} \\
+	\hat{u}_i(t) = \int_{-1}^{1} u(t,\xi)\tilde{J}_i^{(0,0)}(\xi)w(\xi)d\xi \approx A^T u(t,\underline{\xi})
+\end{align}
+where $ A_{j,i} = \tilde{J}_i^{(0,0)}(\xi_j) w_j $ and $\left\lbrace \xi_i, w_i \right\rbrace_{i=0}^N $ is a set of quadrature points. The \textbf{gPC-expansion} is then written as
+\begin{equation}
+	\frac{d\hat{u}_k(t)}{dt} = - \sum_{i,j=0}^N \hat{k}_i \hat{u}_j(t) \underbrace{\int_{-1}^1 \tilde{J}_i^{(0,0)}(\xi) \tilde{J}_j^{(0,0)}(\xi) \tilde{J}_k^{(0,0)}(\xi) w(\xi) d\xi}_{\approx \sum_l^{2N} \tilde{J}_i^{(0,0)}(\xi_l) \tilde{J}_j^{(0,0)}(\xi_l) \tilde{J}_k^{(0,0)}(\xi_l) w_l = e_{ijk}}
+\end{equation}
+The \textbf{initial conditions} are given by
+\begin{equation}
+	\hat{u}_i(0) = \int_{-1}^1 u(0,\xi) \tilde{J}_i^{(0,0)}(\xi) w(\xi) d\xi = 
+	\begin{cases}
+	2 \frac{u_0}{\sqrt{\gamma_0}} \qquad & i=0\\
+	0 \qquad & i \geq 1
+	\end{cases}
+\end{equation}
+The \textbf{expectation} and the \textbf{variance} of the solution for the normalized gPC are given by
+\begin{align}
+	\Exp\left[ u(t,\xi) \right]_{\rho_\xi} &= \int_{-1}^1 u(t,\xi) \rho_\xi(\xi) d\xi \approx \int_{-1}^1 \sum_{i=0}^N \hat{u}_i(t) \tilde{J}_i^{(0,0)}(\xi) \rho_\xi(\xi) d\xi \\
+	&= \sum_{i=0}^N \frac{\hat{u}_i(t)}{\sqrt{\gamma_i}} \frac{1}{2} \int_{-1}^1 J_i^{(0,0)}(\xi) w(\xi) d\xi = \frac{\hat{u}_0(t)}{\sqrt{\gamma_0}} \notag \\
+	\Var [u(t,\xi)]_{\rho_\xi(\xi)} &= \Exp \left[ \left( u(t,\xi) - \mu_u(t) \right)^2 \right]_{\rho_\xi(\xi)} \\
+	&\approx \Exp [ u_N^2(t,\xi) ]_{\rho_\xi(\xi)} - 2 \mu_u(t) \Exp [u_N(t,\xi)]_{\rho_\xi(\xi)} + \mu_u^2(t) \notag \\
+	& = \int_{-1}^1 \sum_{i,j=0}^N \hat{u}_i(t) \hat{u}_j(t) \tilde{J}_i^{(0,0)}(\xi) \tilde{J}_j^{(0,0)}(\xi) \rho_\xi(\xi) d\xi - \mu_u^2(t) \notag \\
+	& = \frac{1}{2} \sum_{i=0}^N \hat{u}_i^2(t) - \hat{u}_0^2(t) = \frac{1}{2} \sum_{i=1}^N \hat{u}_i^2(t) \notag
+\end{align}
+An advantage of using orthonormal polynomials is that we don't need to compute $ \left\lbrace \gamma_i \right\rbrace_{i=1}^N $ values that involve factorials and can become hard to compute accurately for big $N$ values.
+\end{exa}
+
+\subsection[Time Dependent gPC]{Time Dependent generalized Polynomial Chaos}
+In order to improve the performances on time dependent ODEs, one can employ Time Dependent generalized Polynomial Chaos (TDgPC) first introduced in \cite{gerritsma_time-dependent_2010}.
+
+Stop criteria
+\begin{equation}\label{eq:TDgPC-StopCrit}
+	\max\left( \vert \fourIdx{}{j}{}{2}{\hat{u}}(t) \vert, \dots, \vert \fourIdx{}{j}{}{N}{\hat{u}}(t) \vert \right) \geq \frac{\vert \fourIdx{}{j}{}{1}{\hat{u}}(t) \vert}{\theta}
+\end{equation}
+
+Integral relation
+\begin{equation}\label{eq:TDgPC-IntegralRelation}
+	\int_{I_{\psi_j}} g(\psi_j)f_{\psi_j}(\psi_j) d\psi_j = \int_{I_\xi} g(\mathbf{T}(\xi))f_\xi(\xi) d\xi
+\end{equation}
+where $ \mathbf{T}_j(\xi) $ is the composition $ T_1 \circ \dots \circ T_j $ of transformations from the variable $\xi$ to the variables $\psi_1,\dots,\psi_j$.
+
+\begin{exa}[Stochastic Test Equation - continuing example \ref{exa:StochasticTestEquation-gPC}]
+\mbox{}\\
+Consider the solution $ u(t_j,\psi_{j-1}) $ at time $t_j$ that satisfy the stopping criteria \eqref{eq:TDgPC-StopCrit}. Let's define a \textbf{new random variable} $\psi_j$ corresponding to such solution:
+\begin{align}
+	\psi_j = \mathbf{T}_j(\xi) = u(t_j, \psi_{j-1}) &\approx \sum_{i=0}^N [\fourIdx{}{j-1}{}{i}{\hat{u}}(t)] [\fourIdx{}{j-1}{}{i}{\phi}(\psi_{j-1})] \\
+	&= \sum_{i=0}^N [\fourIdx{}{j-1}{}{i}{\hat{u}}(t)][\fourIdx{}{j-1}{}{i}{\phi}(\mathbf{T}_{j-1}(\xi))] \notag
+\end{align}
+We now seek for the best set of orthonormal polynomials in order to describe the distribution of this random variable. We use a generalized version of \textbf{Gram-Schmidt orthogonalization} algorithm \cite{stoer_introduction_2002} for weighted normed spaces. The orthogonalization is started with the Vandermonde matrix of $ \psi $. We finally obtain a set $ \left\lbrace \fourIdx{}{j}{}{i}{\phi}(\psi_j) \right\rbrace_{i=0}^N $ of basis functions s.t.
+\begin{equation}
+	\int_I [\fourIdx{}{j}{}{i}{\phi}(\psi_j)] [\fourIdx{}{j}{}{k}{\phi}(\psi_j)] f_{\psi_j}(\psi_j) d\psi = \delta_{ik}, \qquad \text{for $ i,k = 0, \dots, N $}
+\end{equation}
+We now need to rewrite the system of ODE with respect to this basis functions. First we rewrite the \textbf{initial conditions}, that are given by:
+\begin{align}
+	u(t,\psi_j) &\approx \sum_{i=0}^N [\fourIdx{}{j}{}{i}{\hat{u}}(t)] [\fourIdx{}{j}{}{i}{\phi}(\psi_{j})] \label{eq:TDgPC-newExpansion} \\
+	\fourIdx{}{j}{}{i}{\hat{u}}(t_j) &= \frac{1}{\Vert \fourIdx{}{j}{}{i}{\phi} \Vert}_{f_{\psi_j}} \int_{I_{\psi_j}} u(t_j,\psi_j) [\fourIdx{}{j}{}{i}{\phi}(\psi_{j})] f_{\psi_j}(\psi_j) d\psi_j \\
+	&= \frac{1}{\Vert \fourIdx{}{j}{}{i}{\phi} \Vert}_{f_{\psi_j}} \underbrace{\int_{I_{\xi}} u(t_j,\mathbf{T}(\xi)) [\fourIdx{}{j}{}{i}{\phi}(\mathbf{T}(\xi))] f_{\xi}(\xi) d\xi}_{\approx \sum_{l=0}^{Q N} u(t_j,\mathbf{T}(\xi_l)) [\fourIdx{}{j}{}{i}{\phi}(\mathbf{T}(\xi_l))] w_l} \notag
+\end{align}
+where $ Q $ determines the precision of the quadrature rule, that is used for estimating an integral that can possibly not be a polynomial. We now \textbf{rewrite the ODE} in terms of the new polynomials. For the parameter $k(\xi)$ the expansion \eqref{eq:gPC-kExpansion} can still be used, while the new expansion \eqref{eq:TDgPC-newExpansion} will be used for $ u(t,\psi_j) $. We plug these expansion in the weak formulation of gPC, obtaining
+\begin{align}
+	&\Exp\left[ \frac{du(t,\psi_j)}{dt} \fourIdx{}{j}{}{i}{\phi}(\psi_j) \right]_{f_{\psi_j}} = \Exp\left[ -k(\xi)u(t,\psi_j)[\fourIdx{}{j}{}{i}{\phi}(\psi_j)] \right]_{f_{\psi_j}}\\
+	&\frac{d[\fourIdx{}{j}{}{i}{\hat{u}}(t)]}{dt} = - \frac{1}{\Vert \fourIdx{}{j}{}{i}{\phi} \Vert}_{f_{\psi_j}} \sum_{l,i=0}^N \hat{k}_l [\fourIdx{}{j}{}{i}{\hat{u}}(t)] \underbrace{\int_{-1}^1 \tilde{J}_l^{(0,0)}(\xi) [\fourIdx{}{j}{}{i}{\phi}(\mathbf{T}(\xi))] [\fourIdx{}{j}{}{k}{\phi}(\mathbf{T}(\xi))] f_\xi(\xi) d\xi}_{\approx \sum_{n=0}^{Q N} \tilde{J}_l^{(0,0)}(\xi_n) [\fourIdx{}{j}{}{i}{\phi}(\mathbf{T}(\xi_n))] [\fourIdx{}{j}{}{k}{\phi}(\mathbf{T}(\xi_n))] w_n = e_{lik}}
+\end{align}
+The \textbf{mean} and the \textbf{variance} can now be computed using
+\begin{align}
+	\Exp \left[ u(t,\psi_j) \right]_{f_{\psi_j}} &= \sum_{i=0}^N \fourIdx{}{j}{}{i}{\hat{u}}(t) \underbrace{\int_{-1}^{1} [\fourIdx{}{j}{}{i}{\phi}(\mathbf{T}(\xi))] f_\xi(\xi) d\xi}_{\approx \sum_{n=0}^{QN} [\fourIdx{}{j}{}{i}{\phi}(\mathbf{T}(\xi_n))] w_n} \\
+	\Var \left[ u(t,\psi_j) \right]_{f_{\psi_j}} &= \left[\sum_{i=0}^N \fourIdx{}{j}{}{i}{\hat{u}}(t) \underbrace{\int_{-1}^{1} [\fourIdx{}{j}{}{i}{\phi}(\mathbf{T}(\xi))] [\fourIdx{}{j}{}{i}{\phi}(\mathbf{T}(\xi))] f_\xi(\xi) d\xi}_{\approx \sum_{n=0}^{QN} [\fourIdx{}{j}{}{i}{\phi}(\mathbf{T}(\xi_n))] [\fourIdx{}{j}{}{i}{\phi}(\mathbf{T}(\xi_n))] w_n} \right] - \mu_u^2(t)
+\end{align}
+\end{exa}
+
+\section{Probabilistic Collocation Method}
+Probabilitsic collocation is a non-intrusive approach used to solve stochastic problems.\\
+Let 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% APPENDICES
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\appendix
+
+%% ==> Write your text here or include other files.
+
+%\input{FileName} %You need a file 'FileName.tex' for this.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% BIBLIOGRAPHY AND OTHER LISTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% A small distance to the other stuff in the table of contents (toc)
+\addtocontents{toc}{\protect\vspace*{\baselineskip}}
+
+%% The Bibliography
+%% ==> You need a file 'literature.bib' for this.
+%% ==> You need to run BibTeX for this (Project | Properties... | Uses BibTeX)
+%\addcontentsline{toc}{chapter}{Bibliography} %'Bibliography' into toc
+%\nocite{*} %Even non-cited BibTeX-Entries will be shown.
+\bibliographystyle{acm} %Style of Bibliography: plain / apalike / amsalpha / ...
+\bibliography{refs} %You need a file 'literature.bib' for this.
+
+%% The List of Figures
+%\clearpage
+%\addcontentsline{toc}{chapter}{List of Figures}
+%\listoffigures
+
+%% The List of Tables
+%\clearpage
+%\addcontentsline{toc}{chapter}{List of Tables}
+%\listoftables
+
+\end{document}
