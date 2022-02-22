@@ -1,3 +1,7 @@
+import logging
+import sys
+import traceback
+
 import numpy as np
 import torch
 from torch.autograd.functional import vjp
@@ -56,7 +60,7 @@ class FtNumeric():
         self.f_t_tensor_agg = torch.cat(self.f_t)
 
 
-def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, event_fn=None, is_f_t_evals=False):
+def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, event_fn=None, is_f_t_evals):
     """Integrate a system of ordinary differential equations.
 
     Solves the initial value problem for a non-stiff system of first order ODEs:
@@ -96,7 +100,9 @@ def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, even
     Raises:
         ValueError: if an invalid `method` is provided.
     """
-
+    # logger = logging.getLogger('odeint')
+    # logger.info("odeint is called!")
+    # traceback.print_stack(file=sys.stdout)
     shapes, func, y0, t, rtol, atol, method, options, event_fn, t_is_reversed = _check_inputs(func, y0, t, rtol, atol,
                                                                                               method, options, event_fn,
                                                                                               SOLVERS)

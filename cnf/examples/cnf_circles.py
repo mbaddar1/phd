@@ -12,7 +12,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 import argparse
-
+import logging
 parser = argparse.ArgumentParser()
 parser.add_argument('--adjoint', action='store_true')
 parser.add_argument('--viz', action='store_true', default=True)
@@ -26,11 +26,14 @@ parser.add_argument('--train_dir', type=str, default=None)
 parser.add_argument('--results_dir', type=str, default="./results")
 args = parser.parse_args()
 
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger('Main')
 if args.adjoint:
-    print('set to odeint_adjoint')
-    from torchdiffeq import odeint_adjoint as odeint
+    logger.info('odeint_adjoint to be applied')
+    from torchdiffeq.torchdiffeq import odeint_adjoint as odeint
 else:
-    from torchdiffeq import odeint
+    from torchdiffeq.torchdiffeq import odeint
+    logger.info('odeint to be applied')
 
 
 class CNF(nn.Module):
@@ -45,11 +48,6 @@ class CNF(nn.Module):
         self.width = width
 
         self.hyper_net = HyperNetwork(in_out_dim, hidden_dim, width)
-
-        #### Hack to log f_t evals
-        self.log_f_t = False
-        self.dz_dt_tensor_eval = None
-        self.logpz_tensor_eval = None
 
     def forward(self, t, states):
         z = states[0]
@@ -68,8 +66,6 @@ class CNF(nn.Module):
             dz_dt = torch.matmul(h, U).mean(0)
 
             dlogp_z_dt = -trace_df_dz(dz_dt, z).view(batchsize, 1)
-        if self.log_f_t:
-            pass
         return dz_dt, dlogp_z_dt
 
 
@@ -189,7 +185,8 @@ if __name__ == '__main__':
         for itr in range(1, args.niters + 1):
             optimizer.zero_grad()
             x, logp_diff_t1 = get_batch(args.num_samples)
-            z_t, logp_diff_t = odeint(
+            # ft_numeric is an object to track functional calculations
+            (z_t, logp_diff_t), ft_numeric = odeint(
                 func,
                 (x, logp_diff_t1),
                 torch.tensor([t1, t0]).type(torch.FloatTensor).to(device),
@@ -201,6 +198,7 @@ if __name__ == '__main__':
             z_t0, logp_diff_t0 = z_t[-1], logp_diff_t[-1]
             dummy1 = p_z0.log_prob(z_t0).to(device)
             dummy2 = logp_diff_t0.view(-1)
+            # we can say log_p_x_hat , as we want p(x_hat=z(t1)) to be close to p(x) , KL div interpretation
             logp_x = p_z0.log_prob(z_t0).to(device) - logp_diff_t0.view(-1)
             loss = -logp_x.mean(0)
             # print('before loss backward')

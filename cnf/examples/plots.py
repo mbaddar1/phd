@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import mean_squared_error
 
-df = pd.read_csv("experiments_logs/experiment_2022-01-13T21:19:02.630144.log")
+df = pd.read_csv("../../experiments_logs/experiment_2022-01-13T21:19:02.630144.log")
 print(df.columns)
 
 x = df.dim

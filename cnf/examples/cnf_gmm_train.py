@@ -63,13 +63,13 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
         log_p_z_init_t1 = get_batched_init_log_p_z(num_samples=train_batch_size)
         s0 = x, log_p_z_init_t1
         # print(f's0 = {s0}')
-        z_t, logp_soln = odeint(
+        (z_t, logp_soln), _ = odeint(
             cnf_func_instance,
             s0,
             torch.tensor([t1, t0]).type(torch.FloatTensor),
             atol=1e-5,
             rtol=1e-5,
-            method='dopri5',
+            method='dopri5', is_f_t_evals=False
         )
         z_t0, logp_diff_t0 = z_t[-1], logp_soln[-1]
         dummy1 = base_dist.log_prob(z_t0)
@@ -99,10 +99,12 @@ def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, is_f_t_evals):
     z0 = base_dist.sample_n(n_samples)
     assert isinstance(cnf_func, CNF)
     log_p_z_init_t0 = get_batched_init_log_p_z(num_samples=n_samples)
-    x_gen, ft_numeric = odeint(func=cnf_func, y0=(z0, log_p_z_init_t0),
-                               t=torch.tensor([t0, t1]).type(torch.FloatTensor), is_f_t_evals=is_f_t_evals)
-    pickle.dump(obj=ft_numeric, file=open("./data/ft.pkl", 'wb'))
-    ft_loaded = pickle.load(file=open("./data/ft.pkl", 'rb'))
+    (x_gen, _), ft_numeric = odeint(func=cnf_func, y0=(z0, log_p_z_init_t0),
+                                    t=torch.tensor([t0, t1]).type(torch.FloatTensor), is_f_t_evals=is_f_t_evals)
+    data_dir = 'data'
+    pickle_name = f'ft_n_{n_samples}_d_{list(ft_numeric.shapes[0])[1]}.pkl'
+    pickle.dump(obj=ft_numeric, file=open(os.path.join(data_dir, pickle_name), 'wb'))
+    ft_loaded = pickle.load(file=open(os.path.join(data_dir, pickle_name), 'rb'))
     x_gen = x_gen[-1]
     return x_gen
 
@@ -120,7 +122,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger()
-    saved_models_path = '../../models'
+    saved_models_path = 'models'
     # params
     t0 = 0
     t1 = 10
@@ -131,8 +133,9 @@ if __name__ == '__main__':
     lr = 1e-3
     n_iters = 100
     K = 3  # num GMM components
-
+    is_f_t_evals = True
     # experiment with different dimensions of data
+
     per_dim_count = 1
     file = open(f"./experiments_logs/experiment_{datetime.datetime.now().isoformat()}.log", "w")
     file.write("dim,avg_train_time_sec,out_of_sample_loss,in_sample_loss\n")
@@ -165,7 +168,7 @@ if __name__ == '__main__':
 
             n_test_samples = 1000
             gen_samples = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples,
-                                               t0=t0, t1=t1)
+                                               t0=t0, t1=t1, is_f_t_evals=is_f_t_evals)
             log_prob_test = target_dist.log_prob(x=torch.tensor(gen_samples))
             log_prob_test_avg = log_prob_test.mean(0).detach().numpy()
             logger.info(f'In-sample loss = {final_loss} , out-of-sample = {-log_prob_test_avg} , difference = '
@@ -179,7 +182,8 @@ if __name__ == '__main__':
 
             ## Generate samples ##
             cnf_func_fit.log_f_t = True
-            generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples, t0=t0, t1=t1)
+            generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples, t0=t0, t1=t1,
+                                 is_f_t_evals=is_f_t_evals)
 
         file.write(
             f"{X_dim},{time_diff_sum / per_dim_count},{-log_prob_sum / per_dim_count},"
