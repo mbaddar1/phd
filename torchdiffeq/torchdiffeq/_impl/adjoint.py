@@ -27,7 +27,8 @@ class OdeintAdjointMethod(torch.autograd.Function):
 
         with torch.no_grad():
             # dummy second tuple element to get dummy ft_numeric hack
-            ans, _ = odeint(func, y0, t, rtol=rtol, atol=atol, method=method, options=options, event_fn=event_fn)
+            ans, _ = odeint(func, y0, t, rtol=rtol, atol=atol, method=method, options=options, event_fn=event_fn,
+                            is_f_t_evals=False)
 
             if event_fn is None:
                 y = ans
@@ -128,10 +129,10 @@ class OdeintAdjointMethod(torch.autograd.Function):
                     time_vjps[i] = dLd_cur_t
 
                 # Run the augmented system backwards in time.
-                aug_state,_ = odeint(
+                aug_state, _ = odeint(
                     augmented_dynamics, tuple(aug_state),
                     t[i - 1:i + 1].flip(0),
-                    rtol=adjoint_rtol, atol=adjoint_atol, method=adjoint_method, options=adjoint_options
+                    rtol=adjoint_rtol, atol=adjoint_atol, method=adjoint_method, options=adjoint_options,is_f_t_evals=False
                 )
                 aug_state = [a[1] for a in aug_state]  # extract just the t[i - 1] value
                 aug_state[1] = y[i - 1]  # update to use our forward-pass estimate of the state
@@ -155,8 +156,8 @@ def odeint_adjoint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=No
                    adjoint_params=None):
     # We need this in order to access the variables inside this module,
     # since we have no other way of getting variables along the execution path.
-    logger = logging.getLogger('odeint_adjoint')
-    logger.info('odeint_adjoint called!')
+    # logger = logging.getLogger('odeint_adjoint')
+    # logger.info('odeint_adjoint called!')
     if adjoint_params is None and not isinstance(func, nn.Module):
         raise ValueError('func must be an instance of nn.Module to specify the adjoint parameters; alternatively they '
                          'can be specified explicitly via the `adjoint_params` argument. If there are no parameters '
@@ -205,8 +206,8 @@ def odeint_adjoint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=No
     handle_adjoint_norm_(adjoint_options, shapes, state_norm)
 
     ans = OdeintAdjointMethod.apply(shapes, func, y0, t, rtol, atol, method, options, event_fn, adjoint_rtol,
-                                    adjoint_atol,
-                                    adjoint_method, adjoint_options, t.requires_grad, *adjoint_params)
+                                       adjoint_atol,
+                                       adjoint_method, adjoint_options, t.requires_grad, *adjoint_params)
 
     if event_fn is None:
         solution = ans

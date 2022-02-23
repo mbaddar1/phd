@@ -1,8 +1,3 @@
-import logging
-import sys
-import traceback
-
-import numpy as np
 import torch
 from torch.autograd.functional import vjp
 
@@ -42,22 +37,18 @@ class FtNumeric():
         self.z_t = []
         self.f_t = []
         self.t = []
+        self.z0 = []
         self.shapes = shapes
 
     def add_flat(self, z_t_flat, t, f_t_flat):
         z_t_tensor = _flat_to_shape(z_t_flat, (), self.shapes)[0]
         a = float(t.detach().numpy())  # 0-dim array
         repeats = list(self.shapes[0])[0]
-        t_tensor = torch.tensor(np.repeat(a=a, repeats=repeats))
+        # t_tensor = torch.tensor(np.repeat(a=a, repeats=repeats))
         f_t_tensor = _flat_to_shape(f_t_flat, (), self.shapes)[0]
         self.z_t.append(z_t_tensor)
         self.f_t.append(f_t_tensor)
-        self.t.append(t_tensor)
-
-    def finalize(self):
-        self.z_t_tensor_agg = torch.cat(self.z_t)
-        self.t_tensor_agg = torch.cat(self.t)
-        self.f_t_tensor_agg = torch.cat(self.f_t)
+        self.t.append(t.item())
 
 
 def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, event_fn=None, is_f_t_evals):
@@ -117,8 +108,7 @@ def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, even
         event_t = event_t.to(t)
         if t_is_reversed:
             event_t = -event_t
-    if ft_numeric is not None:
-        ft_numeric.finalize()
+
     if shapes is not None:
         solution = _flat_to_shape(solution, (len(t),), shapes)
 

@@ -4,7 +4,9 @@ import os.path
 import pickle
 import time
 
+import matplotlib.pyplot as plt
 import numpy as np
+import seaborn as sns
 import torch
 from torch import optim
 from tqdm import tqdm
@@ -99,8 +101,10 @@ def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, is_f_t_evals):
     z0 = base_dist.sample_n(n_samples)
     assert isinstance(cnf_func, CNF)
     log_p_z_init_t0 = get_batched_init_log_p_z(num_samples=n_samples)
+
     (x_gen, _), ft_numeric = odeint(func=cnf_func, y0=(z0, log_p_z_init_t0),
                                     t=torch.tensor([t0, t1]).type(torch.FloatTensor), is_f_t_evals=is_f_t_evals)
+    ft_numeric.z0 = z0
     data_dir = 'data'
     pickle_name = f'ft_n_{n_samples}_d_{list(ft_numeric.shapes[0])[1]}.pkl'
     pickle.dump(obj=ft_numeric, file=open(os.path.join(data_dir, pickle_name), 'wb'))
@@ -114,7 +118,14 @@ def get_batched_init_log_p_z(num_samples):
     return torch.zeros(size=(num_samples, 1)).type(torch.FloatTensor)
 
 
-def plot_distribution(x: torch.Tensor):
+def plot_distribution(x: torch.Tensor, filename: str):
+    plt.clf()
+    d = list(x.size())[1]
+    if d == 1:
+        sns.kdeplot(x=x[:, 0].detach().numpy())
+    elif d == 2:
+        sns.kdeplot(x=x[:, 0].detach().numpy(), y=x[:, 1].detach().numpy())
+    plt.savefig(filename)
     pass
 
 
@@ -123,15 +134,17 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger()
     saved_models_path = 'models'
+    timestamp = datetime.datetime.now().isoformat()
     # params
     t0 = 0
     t1 = 10
-    hidden_dim = 32
-    width = 64
+    hidden_dim = 64
+    width = 256
     train_batch_size = 512
-    X_dim_max = 4
+    X_dim_max = 1
     lr = 1e-3
-    n_iters = 100
+    n_iters = 1500
+    n_test_samples = 1000
     K = 3  # num GMM components
     is_f_t_evals = True
     # experiment with different dimensions of data
@@ -144,6 +157,8 @@ if __name__ == '__main__':
 
         logger.info(f'X_dim = {X_dim} out of {X_dim_max}')
         target_dist = gen_vec_gaussian_mixture(n_components=K, dim=X_dim)
+        sample_true_input = target_dist.sample_n(n_test_samples)
+        plot_distribution(sample_true_input, f'input_kde_{timestamp}.png')
         base_dist = torch.distributions.MultivariateNormal(loc=torch.zeros(X_dim),
                                                            scale_tril=torch.diag(torch.ones(X_dim)))
         time_diff_sum = 0
@@ -166,9 +181,9 @@ if __name__ == '__main__':
             logger.info(
                 f'n_components_gmm = {K}, X_dim = {X_dim}, time_diff_sec = {time_diff_sec}')
 
-            n_test_samples = 1000
             gen_samples = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples,
                                                t0=t0, t1=t1, is_f_t_evals=is_f_t_evals)
+            plot_distribution(gen_samples, f'output_kde_{timestamp}_niters_{n_iters}.png')
             log_prob_test = target_dist.log_prob(x=torch.tensor(gen_samples))
             log_prob_test_avg = log_prob_test.mean(0).detach().numpy()
             logger.info(f'In-sample loss = {final_loss} , out-of-sample = {-log_prob_test_avg} , difference = '

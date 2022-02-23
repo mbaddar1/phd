@@ -26,7 +26,7 @@ parser.add_argument('--train_dir', type=str, default=None)
 parser.add_argument('--results_dir', type=str, default="./results")
 args = parser.parse_args()
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger('Main')
 if args.adjoint:
     logger.info('odeint_adjoint to be applied')
@@ -97,7 +97,8 @@ class HyperNetwork(nn.Module):
         self.fc3 = nn.Linear(hidden_dim, 3 * blocksize + width)
 
         self.in_out_dim = in_out_dim
-        self.hidden_dim = hidden_dim
+        # TODO ??
+        # self.hidden_dim = hidden_dim , not used any where
         self.width = width
         self.blocksize = blocksize
 
@@ -192,7 +193,7 @@ if __name__ == '__main__':
                 torch.tensor([t1, t0]).type(torch.FloatTensor).to(device),
                 atol=1e-5,
                 rtol=1e-5,
-                method='dopri5',
+                method='dopri5',is_f_t_evals=False
             )
 
             z_t0, logp_diff_t0 = z_t[-1], logp_diff_t[-1]
@@ -236,7 +237,7 @@ if __name__ == '__main__':
                 torch.tensor(np.linspace(t0, t1, viz_timesteps)).to(device),
                 atol=1e-5,
                 rtol=1e-5,
-                method='dopri5',
+                method='dopri5',is_f_t_evals=False
             )
 
             # Generate evolution of density
@@ -253,7 +254,7 @@ if __name__ == '__main__':
                 torch.tensor(np.linspace(t1, t0, viz_timesteps)).to(device),
                 atol=1e-5,
                 rtol=1e-5,
-                method='dopri5',
+                method='dopri5',is_f_t_evals=False
             )
 
             # Create plots for each timestep

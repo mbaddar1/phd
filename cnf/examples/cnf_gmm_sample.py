@@ -25,4 +25,4 @@ if __name__ == '__main__':
     X_gen = generate_samples_cnf(cnf_func=cnf_func_loaded, base_dist=bast_dist, n_samples=n_samples, t0=t0, t1=t1,
                                  is_f_t_evals=is_f_t_evals)
     seaborn.kdeplot(X_gen.detach().numpy().reshape(-1))
-    pyplot.savefig('kde.png')
+    pyplot.savefig('kde_gmm.png')
