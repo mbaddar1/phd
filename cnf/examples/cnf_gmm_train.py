@@ -97,7 +97,7 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
     return cnf_func_instance, final_loss
 
 
-def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, is_f_t_evals):
+def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, is_f_t_evals,gmm_k):
     z0 = base_dist.sample_n(n_samples)
     assert isinstance(cnf_func, CNF)
     log_p_z_init_t0 = get_batched_init_log_p_z(num_samples=n_samples)
@@ -106,7 +106,7 @@ def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, is_f_t_evals):
                                     t=torch.tensor([t0, t1]).type(torch.FloatTensor), is_f_t_evals=is_f_t_evals)
     ft_numeric.z0 = z0
     data_dir = 'data'
-    pickle_name = f'ft_n_{n_samples}_d_{list(ft_numeric.shapes[0])[1]}.pkl'
+    pickle_name = f'ft_n_{n_samples}_K_{gmm_k}_d_{list(ft_numeric.shapes[0])[1]}.pkl'
     pickle.dump(obj=ft_numeric, file=open(os.path.join(data_dir, pickle_name), 'wb'))
     ft_loaded = pickle.load(file=open(os.path.join(data_dir, pickle_name), 'rb'))
     x_gen = x_gen[-1]
@@ -139,57 +139,60 @@ if __name__ == '__main__':
     t0 = 0
     t1 = 10
     hidden_dim = 64
-    width = 256
+    width = 1024
     train_batch_size = 512
-    X_dim_max = 1
+    D_max = 2
     lr = 1e-3
-    n_iters = 1500
+    n_iters = 3000
     n_test_samples = 1000
     K = 3  # num GMM components
     is_f_t_evals = True
     # experiment with different dimensions of data
-
     per_dim_count = 1
+    # seed
+    seed = 1234
+    np.random.seed(seed)
+    torch.manual_seed(seed)
     file = open(f"./experiments_logs/experiment_{datetime.datetime.now().isoformat()}.log", "w")
     file.write("dim,avg_train_time_sec,out_of_sample_loss,in_sample_loss\n")
     file.flush()
-    for X_dim in np.arange(X_dim_max, X_dim_max + 1):
+    for D in np.arange(D_max, D_max + 1):
 
-        logger.info(f'X_dim = {X_dim} out of {X_dim_max}')
-        target_dist = gen_vec_gaussian_mixture(n_components=K, dim=X_dim)
+        logger.info(f'X_dim = {D} out of {D_max}')
+        target_dist = gen_vec_gaussian_mixture(n_components=K, dim=D)
         sample_true_input = target_dist.sample_n(n_test_samples)
-        plot_distribution(sample_true_input, f'input_kde_{timestamp}.png')
-        base_dist = torch.distributions.MultivariateNormal(loc=torch.zeros(X_dim),
-                                                           scale_tril=torch.diag(torch.ones(X_dim)))
+        plot_distribution(sample_true_input, f'input_kde_K_{K}_D_{D}.png')
+        base_dist = torch.distributions.MultivariateNormal(loc=torch.zeros(D),
+                                                           scale_tril=torch.diag(torch.ones(D)))
         time_diff_sum = 0
         log_prob_sum = 0
         in_out_sample_loss_diff_sum = 0
         in_sample_loss_sum = 0
         # for each dim , repeat a couple of times to take the average per each dim
         for j in range(per_dim_count):
-            logger.info(f'for X_dim = {X_dim}, iter {j + 1} out of {per_dim_count}')
+            logger.info(f'for X_dim = {D}, iter {j + 1} out of {per_dim_count}')
             start_time = time.time()
             cnf_func_fit, final_loss = cnf_fit(base_dist=base_dist, target_dist=target_dist, t0=t0, t1=t1,
-                                               in_out_dim=X_dim,
+                                               in_out_dim=D,
                                                hidden_dim=hidden_dim, width=width, lr=1e-3, niters=n_iters,
                                                train_batch_size=train_batch_size)
-            model_name = f'cnf_func_fit_gmm_K_{K}_D_{X_dim}.pkl'
+            model_name = f'cnf_func_fit_gmm_K_{K}_D_{D}.pkl'
             torch.save(cnf_func_fit, os.path.join(saved_models_path, model_name))
             end_time = time.time()
 
             time_diff_sec = end_time - start_time
             logger.info(
-                f'n_components_gmm = {K}, X_dim = {X_dim}, time_diff_sec = {time_diff_sec}')
+                f'n_components_gmm = {K}, X_dim = {D}, time_diff_sec = {time_diff_sec}')
 
             gen_samples = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples,
-                                               t0=t0, t1=t1, is_f_t_evals=is_f_t_evals)
-            plot_distribution(gen_samples, f'output_kde_{timestamp}_niters_{n_iters}.png')
+                                               t0=t0, t1=t1, is_f_t_evals=is_f_t_evals,gmm_k=K)
+            plot_distribution(gen_samples, f'output_kde_K_{K}_D_{D}_niters_{n_iters}.png')
             log_prob_test = target_dist.log_prob(x=torch.tensor(gen_samples))
             log_prob_test_avg = log_prob_test.mean(0).detach().numpy()
             logger.info(f'In-sample loss = {final_loss} , out-of-sample = {-log_prob_test_avg} , difference = '
                         f'{np.abs(log_prob_test_avg + final_loss)}')
             logger.info(
-                f'n_components_gmm = {K}, X_dim = {X_dim}, avg_log_prob = '
+                f'n_components_gmm = {K}, X_dim = {D}, avg_log_prob = '
                 f'{log_prob_test.mean(0).detach().numpy()}')
             time_diff_sum += time_diff_sec
             log_prob_sum += log_prob_test.mean(0).detach().numpy()
@@ -198,10 +201,10 @@ if __name__ == '__main__':
             ## Generate samples ##
             cnf_func_fit.log_f_t = True
             generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples, t0=t0, t1=t1,
-                                 is_f_t_evals=is_f_t_evals)
+                                 is_f_t_evals=is_f_t_evals,gmm_k=K)
 
         file.write(
-            f"{X_dim},{time_diff_sum / per_dim_count},{-log_prob_sum / per_dim_count},"
+            f"{D},{time_diff_sum / per_dim_count},{-log_prob_sum / per_dim_count},"
             f"{in_sample_loss_sum / per_dim_count}\n")
         file.flush()
 

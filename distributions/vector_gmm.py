@@ -33,13 +33,13 @@ def gen_vec_gaussian_mixture_k3_d2(n_components, dim):
 def gen_vec_gaussian_mixture(n_components, dim):
     scale_tril_list = []
     loc_list = []
-    loc0 = torch.tensor([1.0] * dim)
+    loc0 = torch.tensor([0.0] * dim)
     for i in range(n_components):
         t = torch.randn(dim, dim)
         t = torch.tril(t)
         t.fill_diagonal_(np.random.uniform(0.1, 10))
         scale_tril_list.append(t)
-        loc_ = loc0 + (i + 1) * 10
+        loc_ = loc0 + i * 20
         loc_list.append(loc_)
 
     scale_tril_tensor = torch.stack(scale_tril_list)
