@@ -98,7 +98,7 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
     return cnf_func_instance, final_loss
 
 
-def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, is_f_t_evals, gmm_k, n_iters,model_dir):
+def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, is_f_t_evals, gmm_k, n_iters, model_dir):
     timestamp = datetime.datetime.now().isoformat()
     z0 = base_dist.sample_n(n_samples)
     assert isinstance(cnf_func, CNF)
@@ -148,7 +148,7 @@ if __name__ == '__main__':
     train_batch_size = 512
     D_max = 4
     lr = 1e-3
-    n_iters = 1
+    n_iters = 3000
     n_test_samples = 500
     K = 3  # num GMM components
     is_f_t_evals = True
@@ -168,7 +168,8 @@ if __name__ == '__main__':
         logger.info(f'X_dim = {D} out of {D_max}')
         target_dist = gen_vec_gaussian_mixture(n_components=K, dim=D)
         sample_true_input = target_dist.sample_n(n_test_samples)
-        plot_distribution(sample_true_input, os.path.join(plot_dir,f'input_kde_K_{K}_D_{D}_{timestamp}.png'))
+        plot_distribution(sample_true_input,
+                          os.path.join(plot_dir, f'input_kde_K_{K}_D_{D}_n_{n_test_samples}_{timestamp}.png'))
         base_dist = torch.distributions.MultivariateNormal(loc=torch.zeros(D),
                                                            scale_tril=torch.diag(torch.ones(D)))
         time_diff_sum = 0
@@ -192,8 +193,10 @@ if __name__ == '__main__':
                 f'n_components_gmm = {K}, X_dim = {D}, time_diff_sec = {time_diff_sec}')
 
             gen_samples = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples,
-                                               t0=t0, t1=t1, is_f_t_evals=is_f_t_evals, gmm_k=K, n_iters=n_iters,model_dir=saved_models_path)
-            plot_distribution(gen_samples, os.path.join(plot_dir, f'output_kde_K_{K}_D_{D}_niters_{n_iters}.png'))
+                                               t0=t0, t1=t1, is_f_t_evals=is_f_t_evals, gmm_k=K, n_iters=n_iters,
+                                               model_dir=saved_models_path)
+            plot_distribution(gen_samples,
+                              os.path.join(plot_dir, f'output_kde_K_{K}_D_{D}_niters_{n_iters}_{timestamp}.png'))
             log_prob_test = target_dist.log_prob(x=torch.tensor(gen_samples))
             log_prob_test_avg = log_prob_test.mean(0).detach().numpy()
             logger.info(f'In-sample loss = {final_loss} , out-of-sample = {-log_prob_test_avg} , difference = '
@@ -208,7 +211,7 @@ if __name__ == '__main__':
             ## Generate samples ##
             cnf_func_fit.log_f_t = True
             generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples, t0=t0, t1=t1,
-                                 is_f_t_evals=is_f_t_evals, gmm_k=K, n_iters=n_iters,model_dir=saved_models_path)
+                                 is_f_t_evals=is_f_t_evals, gmm_k=K, n_iters=n_iters, model_dir=saved_models_path)
 
         file.write(
             f"{D},{time_diff_sum / per_dim_count},{-log_prob_sum / per_dim_count},"
