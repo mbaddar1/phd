@@ -30,25 +30,29 @@ SOLVERS = {
 
 
 class FtNumeric():
-    def __init__(self, shapes):
+    def __init__(self, shapes, z0):
         self.z_t_tensor_agg = None
         self.t_tensor_agg = None
         self.f_t_tensor_agg = None
         self.z_t = []
         self.f_t = []
         self.t = []
-        self.z0 = []
+        self.z0 = z0
         self.shapes = shapes
 
     def add_flat(self, z_t_flat, t, f_t_flat):
         z_t_tensor = _flat_to_shape(z_t_flat, (), self.shapes)[0]
-        a = float(t.detach().numpy())  # 0-dim array
-        repeats = list(self.shapes[0])[0]
+        # a = float(t.detach().numpy())  # 0-dim array
+        # repeats = list(self.shapes[0])[0]
         # t_tensor = torch.tensor(np.repeat(a=a, repeats=repeats))
         f_t_tensor = _flat_to_shape(f_t_flat, (), self.shapes)[0]
         self.z_t.append(z_t_tensor)
         self.f_t.append(f_t_tensor)
         self.t.append(t.item())
+
+    def convert_to_dict(self):
+        dict_ = {'z0': self.z0, 'f_t': self.f_t, 'z_t': self.z_t, 't': self.t}
+        return dict_
 
 
 def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, event_fn=None, is_f_t_evals):
@@ -94,12 +98,14 @@ def odeint(func, y0, t, *, rtol=1e-7, atol=1e-9, method=None, options=None, even
     # logger = logging.getLogger('odeint')
     # logger.info("odeint is called!")
     # traceback.print_stack(file=sys.stdout)
+    y0_raw = y0
     shapes, func, y0, t, rtol, atol, method, options, event_fn, t_is_reversed = _check_inputs(func, y0, t, rtol, atol,
                                                                                               method, options, event_fn,
                                                                                               SOLVERS)
 
     solver = SOLVERS[method](func=func, y0=y0, rtol=rtol, atol=atol, **options)
-    ft_numeric = FtNumeric(shapes=shapes) if is_f_t_evals else None
+
+    ft_numeric = FtNumeric(shapes=shapes, z0=y0_raw[0]) if is_f_t_evals else None
     if event_fn is None:
 
         solution = solver.integrate(t, ft_numeric)
