@@ -215,6 +215,7 @@ class RKAdaptiveStepsizeODESolver(AdaptiveStepsizeEventODESolver):
         return find_event(interp_fn, sign0, self.rk_state.t0, self.rk_state.t1, event_fn, self.atol)
 
     def _adaptive_step(self, rk_state, ft_numeric):
+        """TODO understand and try to add a hack to make steps fixed to generate structured data for ft TT training"""
         """Take an adaptive Runge-Kutta step to integrate the ODE."""
         y0, f0, _, t0, dt, interp_coeff = rk_state
         t1 = t0 + dt
