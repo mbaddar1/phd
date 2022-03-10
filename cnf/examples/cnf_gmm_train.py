@@ -1,7 +1,6 @@
 import datetime
 import logging
 import os.path
-import pickle
 import time
 
 import matplotlib.pyplot as plt
@@ -32,10 +31,10 @@ https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu
 
 cmd
 
-size="32G" && file_swap=/swapfile_$size.img && sudo touch $file_swap && 
+size="64G" && file_swap=/swapfile_$size.img && sudo touch $file_swap && 
 sudo fallocate -l $size /$file_swap && sudo mkswap /$file_swap && sudo swapon -p 20 /$file_swap 
 
-sudo chmod 0600 /swapfile_32G.img 
+sudo chmod 0600 /swapfile_64G.img 
 
 check swap size
 cat /proc/swaps
@@ -98,21 +97,21 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
     return cnf_func_instance, final_loss
 
 
-def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, is_f_t_evals, gmm_k, n_iters, model_dir):
-    timestamp = datetime.datetime.now().isoformat()
+def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, is_f_t_evals):
+    # timestamp = datetime.datetime.now().isoformat()
     z0 = base_dist.sample_n(n_samples)
     assert isinstance(cnf_func, CNF)
     log_p_z_init_t0 = get_batched_init_log_p_z(num_samples=n_samples)
 
     (x_gen, _), ft_numeric = odeint(func=cnf_func, y0=(z0, log_p_z_init_t0),
                                     t=torch.tensor([t0, t1]).type(torch.FloatTensor), is_f_t_evals=is_f_t_evals)
-    ft_numeric.z0 = z0
 
-    pickle_name = f'ft_n_{n_samples}_K_{gmm_k}_D_{list(ft_numeric.shapes[0])[1]}_niter_{n_iters}_timestamp_{timestamp}.pkl'
-    pickle.dump(obj=ft_numeric, file=open(os.path.join(model_dir, pickle_name), 'wb'))
-    ft_loaded = pickle.load(file=open(os.path.join(model_dir, pickle_name), 'rb'))
+    ft_dict = ft_numeric.convert_to_dict()
+    # pickle_name = f'ft_n_{n_samples}_K_{gmm_k}_D_{list(ft_numeric.shapes[0])[1]}_niter_{n_iters}_timestamp_{timestamp}.pkl'
+    # pickle.dump(obj=ft_dict, file=open(os.path.join(model_dir, pickle_name), 'wb'))
+    # # ft_dict_loaded = pickle.load(file=open(os.path.join(model_dir, pickle_name), 'rb'))
     x_gen = x_gen[-1]
-    return x_gen
+    return x_gen, ft_dict
 
 
 # get bach of initial values for log p_z
@@ -140,16 +139,17 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     saved_models_path = 'models'
     timestamp = datetime.datetime.now().isoformat()
+    dry_run = False
     # params
     t0 = 0
     t1 = 10
     hidden_dim = 64
     width = 1024
     train_batch_size = 512
-    D_max = 4
+    D_max = 2 if dry_run else 4
     lr = 1e-3
-    n_iters = 3000
-    n_test_samples = 500
+    n_iters = 10 if dry_run else 3000
+    batch_size = 10 if dry_run else 500
     K = 3  # num GMM components
     is_f_t_evals = True
     # experiment with different dimensions of data
@@ -167,9 +167,9 @@ if __name__ == '__main__':
 
         logger.info(f'X_dim = {D} out of {D_max}')
         target_dist = gen_vec_gaussian_mixture(n_components=K, dim=D)
-        sample_true_input = target_dist.sample_n(n_test_samples)
+        sample_true_input = target_dist.sample_n(batch_size)
         plot_distribution(sample_true_input,
-                          os.path.join(plot_dir, f'input_kde_K_{K}_D_{D}_n_{n_test_samples}_{timestamp}.png'))
+                          os.path.join(plot_dir, f'input_kde_K_{K}_D_{D}_n_{batch_size}_{timestamp}.png'))
         base_dist = torch.distributions.MultivariateNormal(loc=torch.zeros(D),
                                                            scale_tril=torch.diag(torch.ones(D)))
         time_diff_sum = 0
@@ -192,7 +192,7 @@ if __name__ == '__main__':
             logger.info(
                 f'n_components_gmm = {K}, X_dim = {D}, time_diff_sec = {time_diff_sec}')
 
-            gen_samples = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples,
+            gen_samples = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=batch_size,
                                                t0=t0, t1=t1, is_f_t_evals=is_f_t_evals, gmm_k=K, n_iters=n_iters,
                                                model_dir=saved_models_path)
             plot_distribution(gen_samples,
@@ -209,9 +209,12 @@ if __name__ == '__main__':
             in_sample_loss_sum += final_loss
 
             ## Generate samples ##
-            cnf_func_fit.log_f_t = True
-            generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=n_test_samples, t0=t0, t1=t1,
-                                 is_f_t_evals=is_f_t_evals, gmm_k=K, n_iters=n_iters, model_dir=saved_models_path)
+            # FIXME sometimes I think this step take a lot of memory and crashes the process, so it is safer
+            # to separate training from sample generation
+            # cnf_func_fit.log_f_t = True
+            # generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=batch_size, t0=t0, t1=t1,
+            #                      is_f_t_evals=is_f_t_evals, gmm_k=K, n_iters=n_iters, model_dir=saved_models_path)
+            # use the cnf_func pkl file
 
         file.write(
             f"{D},{time_diff_sum / per_dim_count},{-log_prob_sum / per_dim_count},"
