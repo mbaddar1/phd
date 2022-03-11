@@ -145,8 +145,8 @@ if __name__ == '__main__':
     t1 = 10
     hidden_dim = 64
     width = 1024
-    train_batch_size = 512
-    D_max = 2 if dry_run else 4
+    train_batch_size = 500
+    D_max = 2 if dry_run else 2
     lr = 1e-3
     n_iters = 10 if dry_run else 3000
     batch_size = 10 if dry_run else 500
@@ -192,12 +192,11 @@ if __name__ == '__main__':
             logger.info(
                 f'n_components_gmm = {K}, X_dim = {D}, time_diff_sec = {time_diff_sec}')
 
-            gen_samples = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=batch_size,
-                                               t0=t0, t1=t1, is_f_t_evals=is_f_t_evals, gmm_k=K, n_iters=n_iters,
-                                               model_dir=saved_models_path)
-            plot_distribution(gen_samples,
+            x_gen,_ = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=batch_size,
+                                         t0=t0, t1=t1, is_f_t_evals=is_f_t_evals)
+            plot_distribution(x_gen,
                               os.path.join(plot_dir, f'output_kde_K_{K}_D_{D}_niters_{n_iters}_{timestamp}.png'))
-            log_prob_test = target_dist.log_prob(x=torch.tensor(gen_samples))
+            log_prob_test = target_dist.log_prob(x=torch.tensor(x_gen))
             log_prob_test_avg = log_prob_test.mean(0).detach().numpy()
             logger.info(f'In-sample loss = {final_loss} , out-of-sample = {-log_prob_test_avg} , difference = '
                         f'{np.abs(log_prob_test_avg + final_loss)}')
