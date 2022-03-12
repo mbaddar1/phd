@@ -1,0 +1,45 @@
+Memory Issues
+Got error
+Process finished with exit code 137 (interrupted by signal 9: SIGKILL)
+Possible cause : extensive memory usage
+https://stackoverflow.com/questions/43268156/process-finished-with-exit-code-137-in-pycharm
+
+**Increase Ubuntu 20.04 swap**
+https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-20-04
+
+cmd
+
+size="64G" && file_swap=/swapfile_$size.img && sudo touch $file_swap &&
+sudo fallocate -l $size /$file_swap && sudo mkswap /$file_swap && sudo swapon -p 20 /$file_swap
+
+sudo chmod 0600 /swapfile_64G.img
+
+check swap size
+cat /proc/swaps
+
+
+**Delete swap file**
+The output of free -h indicates that swap is being used - the swap process is still running.
+
+Enter the command
+
+sudo swapoff /path/to/swapfile/to/be/deleted
+This will disable the swapfile, and the file can be deleted at that point.
+
+Please note that if you have created an entry in /etc/fstab for the swapfile, you should also delete it (or comment it out by adding # at the beginning of the line).
+
+https://askubuntu.com/questions/969296/how-to-delete-a-swap-file-in-ubuntu
+
+**Clear swap memory**
+
+To clear the swap memory on your system, you simply need to cycle off the swap. This moves all data from swap memory back into RAM. It also means that you need to be sure you have the RAM to support this operation. An easy way to do this is to run 'free -m' to see what is being used in swap and in RAM. Once you power it off, you can wait an arbitrary amount of time (30 sec or so) to give the operation time to complete, then power the swap back on. This clears the swap memory cache and re-enables it. Here are all of the commands you'll need!
+
+Check space: # free -m
+Disable swap: # swapoff -a
+
+Wait approx 30 sec
+(use free -m to see the amount of swap used/available decrease over time)
+
+Enable swap: # swapon -a
+Hopefully, this quick tip helps you clear your system swap memory if you ever find yourself in need of just such a fix.
+https://www.redhat.com/sysadmin/clear-swap-linux#:~:text=To%20clear%20the%20swap%20memory,in%20swap%20and%20in%20RAM.
