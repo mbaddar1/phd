@@ -49,7 +49,7 @@ sudo swapoff /path/to/swapfile/to/be/deleted
 This will disable the swapfile, and the file can be deleted at that point.
 
 Please note that if you have created an entry in /etc/fstab for the swapfile, you should also delete it (or comment it out by adding # at the beginning of the line).
-
+https://askubuntu.com/questions/969296/how-to-delete-a-swap-file-in-ubuntu 
 """
 
 
