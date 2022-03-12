@@ -15,42 +15,6 @@ from cnf.examples.cnf_circles import CNF
 from distributions.vector_gmm import gen_vec_gaussian_mixture
 from torchdiffeq import odeint
 
-# TODO
-"""
-1- understand the meaning of t0=0, t1=10, how discretization happens ?
-"""
-"""
-Tech. Issues 
-Got error
-Process finished with exit code 137 (interrupted by signal 9: SIGKILL)
-Possible cause : extensive memory usage
-https://stackoverflow.com/questions/43268156/process-finished-with-exit-code-137-in-pycharm
-
-Increase Ubuntu 20.04 swap
-https://www.digitalocean.com/community/tutorials/how-to-add-swap-space-on-ubuntu-20-04 
-
-cmd
-
-size="64G" && file_swap=/swapfile_$size.img && sudo touch $file_swap && 
-sudo fallocate -l $size /$file_swap && sudo mkswap /$file_swap && sudo swapon -p 20 /$file_swap 
-
-sudo chmod 0600 /swapfile_64G.img 
-
-check swap size
-cat /proc/swaps
-
-
-Delete swap file
-The output of free -h indicates that swap is being used - the swap process is still running.
-
-Enter the command
-
-sudo swapoff /path/to/swapfile/to/be/deleted
-This will disable the swapfile, and the file can be deleted at that point.
-
-Please note that if you have created an entry in /etc/fstab for the swapfile, you should also delete it (or comment it out by adding # at the beginning of the line).
-https://askubuntu.com/questions/969296/how-to-delete-a-swap-file-in-ubuntu 
-"""
 
 
 def cnf_fit(base_dist: torch.distributions.Distribution,
