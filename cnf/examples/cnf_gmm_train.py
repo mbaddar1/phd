@@ -114,14 +114,14 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     saved_models_path = 'models'
     timestamp = datetime.datetime.now().isoformat()
-    dry_run = False
+    dry_run = True
     # params
     t0 = 0
     t1 = 10
     hidden_dim = 64
     width = 1024
     train_batch_size = 500
-    D_max = 2 if dry_run else 2
+    D_max = 2 if dry_run else 4
     lr = 1e-3
     n_iters = 10 if dry_run else 3000
     batch_size = 10 if dry_run else 500
@@ -197,4 +197,5 @@ if __name__ == '__main__':
 
     file.flush()
     file.close()
+    logger.info('Job finished successfully')
     # print(results)
