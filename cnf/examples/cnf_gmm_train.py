@@ -114,7 +114,7 @@ if __name__ == '__main__':
     logger = logging.getLogger()
     saved_models_path = 'models'
     timestamp = datetime.datetime.now().isoformat()
-    dry_run = True
+    dry_run = False
     # params
     t0 = 0
     t1 = 10
