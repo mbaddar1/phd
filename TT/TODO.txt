@@ -1,0 +1,6 @@
+
+1 - Memory profiling for tt als code
+1a - another script to call memory profiler with ft_train params as cla to measure memory growth with
+ datasize , niters, max_rank
+Backlog
+2- mini-batch TT approx (one-shot makes memory explode)
