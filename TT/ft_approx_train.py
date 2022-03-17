@@ -40,7 +40,7 @@ if __name__ == '__main__':
     n_samples = 10 if dry_run else 100
     random_idx = np.random.randint(low=0, high=N - 1, size=n_samples)
     epochs = 1
-    max_rank_range = [2] if dry_run else [4]
+    max_rank_range = [2] if dry_run else [5]
     train_meta_data_file_prefix = 'train_meta_data_dz_dt'
     train_meta_data_dir = 'train_meta_data'
     timestamp_ = datetime.datetime.now().isoformat()
@@ -61,7 +61,7 @@ if __name__ == '__main__':
 
                 xTT.fit(X_train, Y_train, iterations=n_iterations, verboselevel=1, rule=rule, reg_param=1e-6)
                 train_meta_data_filepath = os.path.join(train_meta_data_dir,
-                                                        f'{train_meta_data_file_prefix}_Yd_{d_y_idx + 1}_maxrank_{max_rank}_n_iter_{n_iterations}_{timestamp_}.pkl')
+                                                        f'{train_meta_data_file_prefix}_Yd_{d_y_idx + 1}_maxrank_{max_rank}_n_iter_{n_iterations}_nsampels_{n_samples}_{timestamp_}.pkl')
                 pickle.dump(xTT.train_meta_data, open(train_meta_data_filepath, 'wb'))
 
                 logger.info(f'Finished training with at epoch # {epoch} with N = {n_samples} for y_d|d={d_y_idx + 1} '
