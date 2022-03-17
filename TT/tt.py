@@ -4,6 +4,7 @@ import os.path
 import pickle
 import sys
 
+import psutil
 from memory_profiler import profile
 from types import LambdaType
 from colorama import Fore, Style
@@ -705,9 +706,20 @@ class ALS_Regression(object):
 
         R_stack = [lb.ones((b, 1))]
         L_stack = [lb.ones((b, 1))]
-
+        # meta data
         train_meta_data = dict()
         train_meta_data['iter_loss'] = []
+
+        gb_const = 1024*1024*1024
+        virtual_mem_total = psutil.virtual_memory().total/gb_const
+        swap_mem = psutil.swap_memory().total/gb_const
+        tot_mem = (virtual_mem_total + swap_mem)
+        train_meta_data['virtual_mem_tot_gb'] = virtual_mem_total
+        train_meta_data['swap_mem_tot_gb'] = swap_mem
+        train_meta_data['iter_virtual_mem_perc'] = []
+        train_meta_data['iter_swap_mem_perc'] = []
+
+
         d = self.xTT.tt.n_comps
 
         def add_contraction(mu, list, side='left'):
@@ -869,6 +881,7 @@ class ALS_Regression(object):
         history = []
 
         while not stop_condition:
+
             # forward half-sweep
             for mu in range(d - 1):
                 self.xTT.tt.set_core(mu)
@@ -898,7 +911,9 @@ class ALS_Regression(object):
             # update stop condition
             niter += 1
             curr_res = lb.linalg.norm(self.xTT(x) - y) ** 2 / lb.linalg.norm(y) ** 2
-            train_meta_data['iter_loss'].append(curr_res.item())
+
+
+
             # update reg_param
             # reg_param = 1e-6*curr_res.item()
             stop_condition = niter > iterations or curr_res < tol
@@ -928,6 +943,19 @@ class ALS_Regression(object):
                             add_contraction(mu, R_stack, side='right')
 
                         history = []
+
+            # Train meta data (loss, mem)
+            # loss
+            train_meta_data['iter_loss'].append(curr_res.item())
+            # mem
+            vmem = psutil.virtual_memory()
+            swap_mem = psutil.swap_memory()
+
+            train_meta_data['iter_virtual_mem_perc'].append(vmem.percent)
+            train_meta_data['iter_swap_mem_perc'].append(swap_mem.percent)
+            print(f"Virtual-mem-usage at niter  {niter} = {vmem.percent}% out of {np.round(vmem.total/gb_const,2)} GB")
+            print(f"Swap-mem-usage at niter  {niter} = {swap_mem.percent}% out of {np.round(swap_mem.total/gb_const,2)} GB")
+            ##
 
         return self.xTT.tt, train_meta_data
 

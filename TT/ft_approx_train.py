@@ -37,10 +37,10 @@ if __name__ == '__main__':
 
     # Training
     dry_run = False
-    n_samples = 10 if dry_run else 1000
+    n_samples = 10 if dry_run else 100
     random_idx = np.random.randint(low=0, high=N - 1, size=n_samples)
     epochs = 1
-    max_rank_range = [2] if dry_run else [5]
+    max_rank_range = [2] if dry_run else [4]
     train_meta_data_file_prefix = 'train_meta_data_dz_dt'
     train_meta_data_dir = 'train_meta_data'
     timestamp_ = datetime.datetime.now().isoformat()
@@ -49,10 +49,10 @@ if __name__ == '__main__':
         for epoch in range(1, epochs + 1):
             for d_y_idx in range(1):
                 # memory profiling
-                memory_log_filename = f"memory_profiling_logs/memory_profile_log_Yd_{d_y_idx}_max_rank_{max_rank}_niter_{n_iterations}_nsample_{n_samples}.log"
-                create_memory_profiler_logger(logger_name="memory_profile_logger", log_file_name=memory_log_filename,
-                                              logging_level=logging.DEBUG, log_format=FORMAT)
-                ##
+                # memory_log_filename = f"memory_profiling_logs/memory_profile_log_Yd_{d_y_idx}_max_rank_{max_rank}_niter_{n_iterations}_nsample_{n_samples}.logs"
+                # create_memory_profiler_logger(logger_name="memory_profile_logger", log_file_name=memory_log_filename,
+                #                               logging_level=logging.DEBUG, log_format=FORMAT)
+                # ##
                 logger.info(f'Starting training with at epoch # {epoch} with N = {n_samples} for y_d|d={d_y_idx + 1} '
                             f'with max_rank = {max_rank}')
                 X_train = X[random_idx, :].double()
