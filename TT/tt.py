@@ -650,16 +650,6 @@ def conjugate_grad(S, b, x, tol=1e-3):
     return lb.tensor(x)[:, None]
 
 
-def my_mem_profiler(iter_idx, R_stack, L_stack, xTT):
-    logger = logging.getLogger()
-    const = 1024 * 1024
-
-    logger.debug(f'i = {iter_idx} size of R_stack = {sys.getsizeof(R_stack) / const} MB')
-    logger.debug(f'i = {iter_idx} size of L_stack = {sys.getsizeof(L_stack) / const} MB')
-    logger.debug(f'i = {iter_idx} size of xTT = {sys.getsizeof(xTT.tt) / const} MB')
-    if iter_idx>50:
-        x=1
-
 
 class ALS_Regression(object):
     """
@@ -938,7 +928,6 @@ class ALS_Regression(object):
                             add_contraction(mu, R_stack, side='right')
 
                         history = []
-            my_mem_profiler(niter, R_stack, L_stack, self.xTT)
 
         return self.xTT.tt, train_meta_data
 

@@ -5,6 +5,7 @@ import logging
 
 import numpy as np
 
+from TT.memory_profiling_utils import create_memory_profiler_logger
 from feature_utils import orthpoly_basis
 from tt import Extended_TensorTrain, Dörfler_Adaptivity
 
@@ -47,6 +48,11 @@ if __name__ == '__main__':
     for max_rank in max_rank_range:
         for epoch in range(1, epochs + 1):
             for d_y_idx in range(1):
+                # memory profiling
+                memory_log_filename = f"memory_profiling_logs/memory_profile_log_Yd_{d_y_idx}_max_rank_{max_rank}_niter_{n_iterations}_nsample_{n_samples}.log"
+                create_memory_profiler_logger(logger_name="memory_profile_logger", log_file_name=memory_log_filename,
+                                              logging_level=logging.DEBUG, log_format=FORMAT)
+                ##
                 logger.info(f'Starting training with at epoch # {epoch} with N = {n_samples} for y_d|d={d_y_idx + 1} '
                             f'with max_rank = {max_rank}')
                 X_train = X[random_idx, :].double()
