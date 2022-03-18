@@ -5,7 +5,6 @@ import logging
 
 import numpy as np
 
-from TT.memory_profiling_utils import create_memory_profiler_logger
 from feature_utils import orthpoly_basis
 from tt import Extended_TensorTrain, Dörfler_Adaptivity
 
