@@ -47,7 +47,7 @@ def plot_memory_usage(train_meta_data_pkl, plot_core_name):
     pyplot.ylabel("Virtual_mem_percentage")
     pyplot.title(
         f"""Percentage of virtual memory usage vs iterations, tot virtual memory = 
-        {train_meta_data_pkl["virtual_mem_tot_gb"]}""")
+        {np.round(train_meta_data_pkl["virtual_mem_tot_gb"],1)} GB""")
     pd.Series(train_meta_data_pkl["iter_virtual_mem_perc"]).plot()
     pyplot.savefig(os.path.join('plots', f'vmem_iter_{plot_core_name}.png'))
 
@@ -70,7 +70,7 @@ if __name__ == '__main__':
     # #     print(sys.getsizeof(k)/mb_const)
 
     train_meta_data_dir = "train_meta_data"
-    train_meta_data_filename = "train_meta_data_dz_dt_Yd_1_maxrank_5_n_iter_2000_nsampels_100_2022-03-17T17:05:41.516255.pkl";
+    train_meta_data_filename = "train_meta_data_sum_sin_xj_pow_2_n_iter_2000_2022-03-20T10:03:16.673878.pkl"
     train_meta_data_pkl_filepath = os.path.join(train_meta_data_dir, train_meta_data_filename)
     plot_core_name = train_meta_data_filename.replace("train_meta_data_", "").replace(".pkl", "")
     train_meta_data_pkl = pickle.load(open(train_meta_data_pkl_filepath, 'rb'))

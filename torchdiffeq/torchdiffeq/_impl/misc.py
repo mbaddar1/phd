@@ -134,7 +134,7 @@ class _TupleFunc(torch.nn.Module):
         super(_TupleFunc, self).__init__()
         self.base_func = base_func
         self.shapes = shapes
-        self.log_f_t = False  # a hack to log f_t evals
+        self.log_f_t = False  # a hack to logs f_t evals
         self.f_t_vals = []
         self.z_t_vals = []
         self.t_vals = []
@@ -211,7 +211,7 @@ def _check_inputs(func, y0, t, rtol, atol, method, options, event_fn, SOLVERS):
     :param options:
     :param event_fn:
     :param SOLVERS:
-    :param log_f_t: a hack to log f_t evals # fixme
+    :param log_f_t: a hack to logs f_t evals # fixme
     :return:
     """
 

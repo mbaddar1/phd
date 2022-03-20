@@ -1,3 +1,3 @@
 """
-Define the format for json file to be used as experiment log here
+Define the format for json file to be used as experiment logs here
 """

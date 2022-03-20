@@ -5,8 +5,10 @@ import logging
 
 import numpy as np
 
-from feature_utils import orthpoly_basis
-from tt import Extended_TensorTrain, Dörfler_Adaptivity
+# from feature_utils import orthpoly_basis
+# from tt import Extended_TensorTrain, Dörfler_Adaptivity
+from TT.feature_utils import orthpoly_basis
+from TT.tt import Extended_TensorTrain, Dörfler_Adaptivity
 
 if __name__ == '__main__':
     FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
@@ -66,9 +68,3 @@ if __name__ == '__main__':
                 logger.info(f'Finished training with at epoch # {epoch} with N = {n_samples} for y_d|d={d_y_idx + 1} '
                             f'with max_rank = {max_rank}')
 
-"""
-Train Meta Data Table
-train_meta_data_sum_sin_xj_pow_2_n_iter_2000_2022-03-14T16:13:43.745088.pkl         with relative quad norm 
-train_meta_data_dz_dt_Yd_1_maxrank_5_n_iter_2000_2022-03-15T11:10:51.495338.pkl     with quad-norm, no relative
-
-"""

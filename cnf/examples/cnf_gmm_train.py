@@ -89,7 +89,7 @@ def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, is_f_t_evals):
     return x_gen, ft_dict
 
 
-# get bach of initial values for log p_z
+# get bach of initial values for logs p_z
 def get_batched_init_log_p_z(num_samples):
     return torch.zeros(size=(num_samples, 1)).type(torch.FloatTensor)
 

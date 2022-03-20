@@ -1,9 +1,10 @@
 import numpy as np
 from scipy.linalg import solve_triangular
 
-from linearbackend import Linear_Backend
+# from linearbackendrbackend import Linear_Backend
 #backend_options = {  "backend": "numpy"/"torch", 
 #                     "device" : "cpu"/"cuda"}
+from TT.linearbackend import Linear_Backend
 
 device = "cpu"
 lb = Linear_Backend(backend_options =  {"backend" : "torch", "device" : device})

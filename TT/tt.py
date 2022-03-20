@@ -24,9 +24,10 @@ from itertools import product
 
 from torch.utils.hipify.hipify_python import InputError
 
-from tictoc import TicToc
-
-from feature_utils import orthpoly_basis
+# from tictoc import TicToc
+from TT.feature_utils import orthpoly_basis
+from TT.tictoc import TicToc
+# from feature_utils import orthpoly_basis
 
 # TODO: try import mechanic
 # import pytorch as lb
@@ -39,10 +40,10 @@ from feature_utils import orthpoly_basis
 
 # lb = Linear_Backend(backend_options = {"backend" : "torch", "device" : "cuda"})
 
-from linearbackend import lb
+from TT.linearbackend import lb
 
 # tensor utilities
-import tensor
+import TT.tensor
 
 
 class Rule(object):
@@ -651,7 +652,6 @@ def conjugate_grad(S, b, x, tol=1e-3):
     return lb.tensor(x)[:, None]
 
 
-
 class ALS_Regression(object):
     """
     TODO basis choice for the fitting for numerical stability : 
@@ -691,7 +691,7 @@ class ALS_Regression(object):
             x shape (batch_size, input_dim)
             y shape (batch_size, 1)
         """
-
+        tol = -1  # FIXME hack to make code go over all iterations for memory profiling
         # size of the data batch
         b = y.shape[0]
 
@@ -710,15 +710,14 @@ class ALS_Regression(object):
         train_meta_data = dict()
         train_meta_data['iter_loss'] = []
 
-        gb_const = 1024*1024*1024
-        virtual_mem_total = psutil.virtual_memory().total/gb_const
-        swap_mem = psutil.swap_memory().total/gb_const
+        gb_const = 1024 * 1024 * 1024
+        virtual_mem_total = psutil.virtual_memory().total / gb_const
+        swap_mem = psutil.swap_memory().total / gb_const
         tot_mem = (virtual_mem_total + swap_mem)
         train_meta_data['virtual_mem_tot_gb'] = virtual_mem_total
         train_meta_data['swap_mem_tot_gb'] = swap_mem
         train_meta_data['iter_virtual_mem_perc'] = []
         train_meta_data['iter_swap_mem_perc'] = []
-
 
         d = self.xTT.tt.n_comps
 
@@ -912,8 +911,6 @@ class ALS_Regression(object):
             niter += 1
             curr_res = lb.linalg.norm(self.xTT(x) - y) ** 2 / lb.linalg.norm(y) ** 2
 
-
-
             # update reg_param
             # reg_param = 1e-6*curr_res.item()
             stop_condition = niter > iterations or curr_res < tol
@@ -953,8 +950,10 @@ class ALS_Regression(object):
 
             train_meta_data['iter_virtual_mem_perc'].append(vmem.percent)
             train_meta_data['iter_swap_mem_perc'].append(swap_mem.percent)
-            print(f"Virtual-mem-usage at niter  {niter} = {vmem.percent}% out of {np.round(vmem.total/gb_const,2)} GB")
-            print(f"Swap-mem-usage at niter  {niter} = {swap_mem.percent}% out of {np.round(swap_mem.total/gb_const,2)} GB")
+            print(
+                f"Virtual-mem-usage at niter  {niter} = {vmem.percent}% out of {np.round(vmem.total / gb_const, 2)} GB")
+            print(
+                f"Swap-mem-usage at niter  {niter} = {swap_mem.percent}% out of {np.round(swap_mem.total / gb_const, 2)} GB")
             ##
 
         return self.xTT.tt, train_meta_data
