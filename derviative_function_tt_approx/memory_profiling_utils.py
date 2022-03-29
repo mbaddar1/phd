@@ -70,7 +70,7 @@ if __name__ == '__main__':
     # #     print(sys.getsizeof(k)/mb_const)
 
     train_meta_data_dir = "train_meta_data"
-    train_meta_data_filename = "train_meta_data_sum_sin_xj_pow_2_n_iter_2000_2022-03-20T10:03:16.673878.pkl"
+    train_meta_data_filename = "train_meta_data_sum_sin_xj_pow_2_n_iter_300_2022-03-20T13:40:55.920454.pkl"
     train_meta_data_pkl_filepath = os.path.join(train_meta_data_dir, train_meta_data_filename)
     plot_core_name = train_meta_data_filename.replace("train_meta_data_", "").replace(".pkl", "")
     train_meta_data_pkl = pickle.load(open(train_meta_data_pkl_filepath, 'rb'))

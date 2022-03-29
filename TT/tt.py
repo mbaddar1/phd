@@ -5,7 +5,8 @@ import pickle
 import sys
 
 import psutil
-from memory_profiler import profile
+import torch
+from memory_profiler import profile, memory_usage
 from types import LambdaType
 from colorama import Fore, Style
 # from numpy import core
@@ -25,6 +26,7 @@ from itertools import product
 from torch.utils.hipify.hipify_python import InputError
 
 # from tictoc import TicToc
+from TT import tensor
 from TT.feature_utils import orthpoly_basis
 from TT.tictoc import TicToc
 # from feature_utils import orthpoly_basis
@@ -674,15 +676,17 @@ class ALS_Regression(object):
         # left and right contraction of non-active components 
         self.L = None
         self.R = None
-
         # self.loc_solver_opt = {'modus' : 'normal', }
+        # memory profiling data
+        self.linealg_solve_mem_profile = []
+        self.add_contraction_forward_sweep_mem_profile = []
+        self.add_contraction_backward_sweep_profile = []
 
     # TODO enable ALS with only forward half sweeps
     # TODO early stopping when residual grows
     # TODO early stopping when rank updates yield not significant improvement/overfitting
     # TODO early stopping based on overfitting (compute residual on separate validation set)
     # TODO L1 regularisation (Philipp)
-
     @profile
     def solve(self, x, y, iterations, tol, verboselevel, rule=None, reg_param=None):
 
@@ -691,7 +695,7 @@ class ALS_Regression(object):
             x shape (batch_size, input_dim)
             y shape (batch_size, 1)
         """
-        tol = -1  # FIXME hack to make code go over all iterations for memory profiling
+        # tol = -1  # FIXME hack to make code go over all iterations for memory profiling
         # size of the data batch
         b = y.shape[0]
 
@@ -826,6 +830,16 @@ class ALS_Regression(object):
 
                 self.xTT.tt.comps[mu] = v.reshape(c.shape)
 
+        def compare_list_tensors(l1, l2):
+            if len(l1) != len(l2):
+                return False
+            n = len(l1)
+            for i in range(n):
+                eq = torch.equal(l1[i], l2[i])
+                if not eq:
+                    return False
+            return True
+
         def solve_local(mu, L, R):
 
             with TicToc(key=" o least square matrix allocation ", do_print=False, accumulate=True, sec_key="ALS: "):
@@ -843,8 +857,13 @@ class ALS_Regression(object):
                 if reg_param is not None:
                     assert isinstance(reg_param, float)
                     ATA += reg_param * lb.eye(ATA.shape[0])
-
-                c = lb.linalg.solve(ATA, ATy)
+                proc = (lb.linalg.solve, (ATA, ATy), {})
+                # memory profiling
+                ret = memory_usage(proc=proc, max_usage=True, retval=True)
+                c = ret[1]
+                mem_usg = ret[0]
+                self.linealg_solve_mem_profile.append(mem_usg)
+                # c = lb.linalg.solve(ATA, ATy)
 
                 rel_err = lb.linalg.norm(A @ c - y) / lb.linalg.norm(y)
                 if rel_err > 1e-4:
@@ -885,10 +904,16 @@ class ALS_Regression(object):
             for mu in range(d - 1):
                 self.xTT.tt.set_core(mu)
                 if mu > 0:
-                    add_contraction(mu - 1, L_stack, side='left')
+                    # L_stack_copy = L_stack.copy()
+                    # add_contraction(mu - 1, L_stack, side='left')
+                    # FIXME memory profiling ,overhead, remove
+                    proc = (add_contraction, (mu - 1, L_stack), {'side': 'left'})
+                    m = memory_usage(proc=proc, max_usage=True, retval=False, max_iterations=1)
+                    self.add_contraction_forward_sweep_mem_profile.append(m)
+                    # assert compare_list_tensors(L_stack, L_stack_copy)
+                    # FIXME END memory profiling ####
                     del R_stack[-1]
                 loc_solver(mu, L_stack[-1], R_stack[-1])
-
             # before back sweep
             self.xTT.tt.set_core(d - 1)
             add_contraction(d - 2, L_stack, side='left')
@@ -898,7 +923,15 @@ class ALS_Regression(object):
             for mu in range(d - 1, 0, -1):
                 self.xTT.tt.set_core(mu)
                 if mu < d - 1:
-                    add_contraction(mu + 1, R_stack, side='right')
+                    # R_stack_copy = R_stack.copy()
+                    # add_contraction(mu +
+                    # 1, R_stack, side='right')
+                    # FIXME memory profiling, overhead, remove
+                    proc = (add_contraction, (mu + 1, R_stack), {'side': 'right'})
+                    m = memory_usage(proc=proc, max_usage=True, retval=False, max_iterations=1)
+                    self.add_contraction_backward_sweep_profile.append(m)
+                    # assert compare_list_tensors(R_stack, R_stack_copy)  # test same input/output
+                    ## FIXME end memory profiling
                     del L_stack[-1]
                 loc_solver(mu, L_stack[-1], R_stack[-1])
 
@@ -1259,6 +1292,8 @@ class Extended_TensorTrain(object):
             @param x : input parameter of the training data set : x with shape (b,d)   b \in \mathbb{N}
             @param y : output data with shape (b,m)
         """
+        logging.basicConfig(level=logging.DEBUG)
+        logger = logging.getLogger()
 
         assert (x.shape[1] == self.d)
 
@@ -1267,6 +1302,13 @@ class Extended_TensorTrain(object):
         #     res = solver.solve(x,y,iterations,tol,verboselevel, rule)
         with TicToc(key=" o ALS total ", do_print=False, accumulate=True, sec_key="ALS: "):
             res, self.train_meta_data = solver.solve(x, y, iterations, tol, verboselevel, rule, reg_param)
+
+
+            logger.debug(f"solver.linealg_solve_mem_profile = {solver.linealg_solve_mem_profile}")
+            logger.debug(
+                f"solver.linealg_add_contraction_fw_mem_prof = {solver.add_contraction_forward_sweep_mem_profile}")
+            logger.debug(f"solver.linealg_add_contraction_bw_mem_prof = {solver.add_contraction_backward_sweep_profile}")
+
         self.tt.set_components(res.comps)
 
     def tangent_fit(self, x, y, reg=False, reg_coeff=1e-6, reg0=False, reg0_coeff=1e-2, verbose=True):
@@ -1505,7 +1547,7 @@ def main(verbose):
 
     print("================= start fit ==============")
     rule = Dörfler_Adaptivity(delta=1e-6, maxranks=[32] * (d - 1), dims=dims, rankincr=1)
-    n_iters = 2000
+    n_iters = 300
     xTT.fit(xx, yy, iterations=n_iters, verboselevel=1, rule=rule, reg_param=1e-6)
     train_meta_data_dict = xTT.train_meta_data
     train_meta_data_dir = 'train_meta_data'
