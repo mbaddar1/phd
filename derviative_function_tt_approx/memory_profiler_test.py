@@ -1,6 +1,7 @@
 import numpy as np
 from memory_profiler import profile, memory_usage
-
+from pympler.classtracker import ClassTracker
+from pympler import tracker
 
 @profile
 def f1():
@@ -40,6 +41,14 @@ def f3(l):
     l.append(1)
 
 
+class c1:
+    def __init__(self):
+        self.l = []
+
+    def append(self):
+        self.l.append(1)
+
+
 if __name__ == '__main__':
     # f1()
     # N = 8
@@ -51,10 +60,21 @@ if __name__ == '__main__':
     #     mem_usage_iter.append(m[0])
     # print(mem_usage_iter)
     # print('finished')
-    l = []
-    proc = (f3, (l,), {})
-
-    for i in range(6):
-        m = memory_usage(proc=proc, max_usage=True, retval=False, max_iterations=1)
-        # f3(l)
-        print(len(l))
+    # l = []
+    # proc = (f3, (l,), {})
+    #
+    # for i in range(6):
+    #     m = memory_usage(proc=proc, max_usage=True, retval=False, max_iterations=1)
+    #     # f3(l)
+    #     print(len(l))
+    cinst = c1()
+    # tracker1 = ClassTracker()
+    tracker2 = tracker.SummaryTracker()
+    tracker2.summaries
+    # tracker1.track_object(cinst)
+    # tracker1.create_snapshot()
+    for i in range(100):
+        cinst.append()
+    tracker2.print_diff()
+    # tracker1.create_snapshot()
+    # tracker1.stats.print_summary()

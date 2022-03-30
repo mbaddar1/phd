@@ -1,9 +1,10 @@
 import datetime
+import gc
 import logging
 import os.path
 import pickle
-import sys
 
+from pympler import tracker
 import psutil
 import torch
 from memory_profiler import profile, memory_usage
@@ -681,13 +682,13 @@ class ALS_Regression(object):
         self.linealg_solve_mem_profile = []
         self.add_contraction_forward_sweep_mem_profile = []
         self.add_contraction_backward_sweep_profile = []
+        self.lstsq_mem_profile = []
 
     # TODO enable ALS with only forward half sweeps
     # TODO early stopping when residual grows
     # TODO early stopping when rank updates yield not significant improvement/overfitting
     # TODO early stopping based on overfitting (compute residual on separate validation set)
     # TODO L1 regularisation (Philipp)
-    @profile
     def solve(self, x, y, iterations, tol, verboselevel, rule=None, reg_param=None):
 
         """
@@ -695,7 +696,7 @@ class ALS_Regression(object):
             x shape (batch_size, input_dim)
             y shape (batch_size, 1)
         """
-        # tol = -1  # FIXME hack to make code go over all iterations for memory profiling
+        tol = -1  # FIXME hack to make code go over all iterations for memory profiling
         # size of the data batch
         b = y.shape[0]
 
@@ -857,21 +858,27 @@ class ALS_Regression(object):
                 if reg_param is not None:
                     assert isinstance(reg_param, float)
                     ATA += reg_param * lb.eye(ATA.shape[0])
-                proc = (lb.linalg.solve, (ATA, ATy), {})
-                # memory profiling
-                ret = memory_usage(proc=proc, max_usage=True, retval=True)
-                c = ret[1]
-                mem_usg = ret[0]
-                self.linealg_solve_mem_profile.append(mem_usg)
+                # proc = (lb.linalg.solve, (ATA, ATy), {})
+                # # memory profiling
+                # ret = memory_usage(proc=proc, max_usage=True, retval=True)
+                # c = ret[1]
+                # mem_usg = ret[0]
+                # self.linealg_solve_mem_profile.append(mem_usg)
                 # c = lb.linalg.solve(ATA, ATy)
 
-                rel_err = lb.linalg.norm(A @ c - y) / lb.linalg.norm(y)
+                # rel_err = lb.linalg.norm(A @ c - y) / lb.linalg.norm(y)
+                rel_err = 0.5  # FIXME a hack to use LSQ always and avoid normal equation
                 if rel_err > 1e-4:
                     with TicToc(key=" o local solve via lstsq ", do_print=False, accumulate=True, sec_key="ALS: "):
                         if reg_param is not None:
                             Ahat = lb.concatenate([A, lb.sqrt(reg_param) * lb.eye(A.shape[1])], 0)
                             yhat = lb.concatenate([y, lb.zeros((A.shape[1], 1))], 0)
-                            c, res, rank, sigma = lb.linalg.lstsq(Ahat, yhat, rcond=None)
+                            proc = (lb.linalg.lstsq, (Ahat, yhat), {'rcond': None})
+                            m = memory_usage(proc=proc, retval=True, max_usage=True)
+                            # c, res, rank, sigma = lb.linalg.lstsq(Ahat, yhat, rcond=None)
+                            c, res, rank, sigma = m[1]
+                            self.lstsq_mem_profile.append(m[0])
+
                         else:
                             c, res, rank, sigma = lb.linalg.lstsq(A, y, rcond=None)
 
@@ -897,23 +904,40 @@ class ALS_Regression(object):
             add_contraction(mu, R_stack, side='right')
 
         history = []
-
+        mem_summary_tracker = tracker.SummaryTracker()
+        iter = 0
         while not stop_condition:
-
+            # mem profile
+            # if iter % 10 == 0:
+            #     print(f"Mem summary Tracker at iter = {iter}")
+            #     mem_summary_tracker.print_diff()
             # forward half-sweep
+            # if iter % 1 == 0:
+            # print(f'Forcing Garbage collection at iter {iter}')
+            # gc.collect()
             for mu in range(d - 1):
                 self.xTT.tt.set_core(mu)
                 if mu > 0:
                     # L_stack_copy = L_stack.copy()
-                    # add_contraction(mu - 1, L_stack, side='left')
-                    # FIXME memory profiling ,overhead, remove
-                    proc = (add_contraction, (mu - 1, L_stack), {'side': 'left'})
-                    m = memory_usage(proc=proc, max_usage=True, retval=False, max_iterations=1)
-                    self.add_contraction_forward_sweep_mem_profile.append(m)
-                    # assert compare_list_tensors(L_stack, L_stack_copy)
-                    # FIXME END memory profiling ####
+                    # print('Before add_contraction fw')
+                    # mem_summary_tracker.print_diff()
+                    add_contraction(mu - 1, L_stack, side='left')
+                    # print('After add_contraction fw')
+                    # mem_summary_tracker.print_diff()
+                    # # FIXME memory profiling ,overhead, remove
+                    # proc = (add_contraction, (mu - 1, L_stack), {'side': 'left'})
+                    # m = memory_usage(proc=proc, max_usage=True, retval=False, max_iterations=1)
+                    # self.add_contraction_forward_sweep_mem_profile.append(m)
+                    # # assert compare_list_tensors(L_stack, L_stack_copy)
+                    # # FIXME END memory profiling ####
                     del R_stack[-1]
+                    # print('After add_contraction del fw')
+                    # mem_summary_tracker.print_diff()
+                # print('Before loc_solver')
+                # mem_summary_tracker.print_diff()
                 loc_solver(mu, L_stack[-1], R_stack[-1])
+                # print('After loc_solver')
+                # mem_summary_tracker.print_diff()
             # before back sweep
             self.xTT.tt.set_core(d - 1)
             add_contraction(d - 2, L_stack, side='left')
@@ -924,14 +948,13 @@ class ALS_Regression(object):
                 self.xTT.tt.set_core(mu)
                 if mu < d - 1:
                     # R_stack_copy = R_stack.copy()
-                    # add_contraction(mu +
-                    # 1, R_stack, side='right')
-                    # FIXME memory profiling, overhead, remove
-                    proc = (add_contraction, (mu + 1, R_stack), {'side': 'right'})
-                    m = memory_usage(proc=proc, max_usage=True, retval=False, max_iterations=1)
-                    self.add_contraction_backward_sweep_profile.append(m)
-                    # assert compare_list_tensors(R_stack, R_stack_copy)  # test same input/output
-                    ## FIXME end memory profiling
+                    add_contraction(mu + 1, R_stack, side='right')
+                    # # FIXME memory profiling, overhead, remove
+                    # proc = (add_contraction, (mu + 1, R_stack), {'side': 'right'})
+                    # m = memory_usage(proc=proc, max_usage=True, retval=False, max_iterations=1)
+                    # self.add_contraction_backward_sweep_profile.append(m)
+                    # # assert compare_list_tensors(R_stack, R_stack_copy)  # test same input/output
+                    # ## FIXME end memory profiling
                     del L_stack[-1]
                 loc_solver(mu, L_stack[-1], R_stack[-1])
 
@@ -987,7 +1010,7 @@ class ALS_Regression(object):
                 f"Virtual-mem-usage at niter  {niter} = {vmem.percent}% out of {np.round(vmem.total / gb_const, 2)} GB")
             print(
                 f"Swap-mem-usage at niter  {niter} = {swap_mem.percent}% out of {np.round(swap_mem.total / gb_const, 2)} GB")
-            ##
+            iter += 1
 
         return self.xTT.tt, train_meta_data
 
@@ -1283,6 +1306,9 @@ class Extended_TensorTrain(object):
 
         return gradient
 
+    def fit_batch(self, x, y, iterations, rule=None, tol=8e-6, verboselevel=0, reg_param=None):
+        pass
+
     def fit(self, x, y, iterations, rule=None, tol=8e-6, verboselevel=0, reg_param=None):
         """
             Fits the Extended Tensortrain to the given data (x,y) of some target function 
@@ -1303,11 +1329,13 @@ class Extended_TensorTrain(object):
         with TicToc(key=" o ALS total ", do_print=False, accumulate=True, sec_key="ALS: "):
             res, self.train_meta_data = solver.solve(x, y, iterations, tol, verboselevel, rule, reg_param)
 
-
-            logger.debug(f"solver.linealg_solve_mem_profile = {solver.linealg_solve_mem_profile}")
-            logger.debug(
-                f"solver.linealg_add_contraction_fw_mem_prof = {solver.add_contraction_forward_sweep_mem_profile}")
-            logger.debug(f"solver.linealg_add_contraction_bw_mem_prof = {solver.add_contraction_backward_sweep_profile}")
+            # logger.debug(f"solver.linealg_solve_mem_profile = {solver.linealg_solve_mem_profile}")
+            # logger.debug(
+            #     f"solver.linealg_add_contraction_fw_mem_prof = {solver.add_contraction_forward_sweep_mem_profile}")
+            # logger.debug(
+            #     f"solver.linealg_add_contraction_bw_mem_prof = {solver.add_contraction_backward_sweep_profile}")
+            # logger.debug(
+            #     f"lstsq mem profile = {solver.lstsq_mem_profile}")
 
         self.tt.set_components(res.comps)
 

@@ -1,0 +1,201 @@
+/home/mbaddar/Documents/mbaddar/phd/venv39/bin/python3.9 /home/mbaddar/Documents/mbaddar/phd/phd/TT/tt.py
+pytorch version:  1.11.0+cu102
+================= start fit ==============
+Warning upper limit of rank exceeded (32 > 10). Choose upper limit as max rank.
+Warning upper limit of rank exceeded (32 > 10). Choose upper limit as max rank.
+/home/mbaddar/Documents/mbaddar/phd/phd/TT/tt.py:1532: DeprecationWarning: Calling np.sum(generator) is deprecated, and in the future will give a different result. Use np.sum(np.fromiter(generator)) or the python sum builtin instead.
+  f = lambda x: lb.tensor(np.sin(np.sum(x.cpu()[:, i] ** 2 for i in range(d))))
+/home/mbaddar/Documents/mbaddar/phd/phd/TT/linearbackend.py:201: UserWarning: To copy construct from a tensor, it is recommended to use sourceTensor.clone().detach() or sourceTensor.clone().detach().requires_grad_(True), rather than torch.tensor(sourceTensor).
+  return torch.tensor(object, dtype=dtype, device=self.device)
+START residuum :  tensor(0.9999)
+/home/mbaddar/Documents/mbaddar/phd/venv39/lib/python3.9/site-packages/torch/distributed/distributed_c10d.py:181: UserWarning: torch.distributed.reduce_op is deprecated, please use torch.distributed.ReduceOp instead
+  warnings.warn(
+Mem summary Tracker at iter = 0
+                  types |   # objects |   total size
+======================= | =========== | ============
+                    str |       14430 |      1.07 MB
+                   list |       11785 |      1.02 MB
+                    int |        2740 |     74.94 KB
+                   dict |          10 |      2.38 KB
+                   type |           5 |      1.99 KB
+      method_descriptor |          13 |    936     B
+     wrapper_descriptor |          11 |    792     B
+                weakref |           7 |    504     B
+                   code |           0 |    252     B
+  function (store_info) |           1 |    136     B
+                   cell |           2 |     80     B
+      member_descriptor |           1 |     64     B
+                 method |           1 |     64     B
+                complex |          -1 |    -32     B
+                  float |         -16 |   -384     B
+1    . iteration.  Data residuum : 0.951959185615091
+Virtual-mem-usage at niter  1 = 54.0% out of 31.1 GB
+Swap-mem-usage at niter  1 = 57.4% out of 2.0 GB
+Mem summary Tracker at iter = 1
+                    types |   # objects |   total size
+========================= | =========== | ============
+                     dict |          17 |      4.40 KB
+                     code |           9 |      1.62 KB
+                     type |           1 |      1.40 KB
+                      str |          18 |      1.21 KB
+                    tuple |          18 |    992     B
+                    float |          28 |    672     B
+                      int |          22 |    656     B
+                     list |           4 |    520     B
+                      set |           0 |    512     B
+                  weakref |           5 |    360     B
+          function (wait) |           1 |    136     B
+          function (kill) |           1 |    136     B
+     function (terminate) |           1 |    136     B
+         function (close) |           1 |    136     B
+  function (_send_signal) |           1 |    136     B
+2    . iteration.  Data residuum : 0.07470875376944645
+Virtual-mem-usage at niter  2 = 54.0% out of 31.1 GB
+Swap-mem-usage at niter  2 = 57.4% out of 2.0 GB
+Mem summary Tracker at iter = 2
+         types |   # objects |   total size
+============== | =========== | ============
+          list |           9 |    848     B
+           str |           9 |    688     B
+         float |          15 |    360     B
+  torch.Tensor |           1 |     72     B
+           int |           1 |     28     B
+         tuple |          -6 |   -352     B
+3    . iteration.  Data residuum : 0.07389178946264723
+Virtual-mem-usage at niter  3 = 54.0% out of 31.1 GB
+Swap-mem-usage at niter  3 = 57.4% out of 2.0 GB
+Mem summary Tracker at iter = 3
+         types |   # objects |   total size
+============== | =========== | ============
+         float |          17 |    408     B
+          list |           0 |    192     B
+          code |           0 |    177     B
+  torch.Tensor |           1 |     72     B
+4    . iteration.  Data residuum : 0.07389147999238972
+Virtual-mem-usage at niter  4 = 54.1% out of 31.1 GB
+Swap-mem-usage at niter  4 = 57.4% out of 2.0 GB
+Mem summary Tracker at iter = 4
+         types |   # objects |   total size
+============== | =========== | ============
+         float |          17 |    408     B
+          list |           0 |     96     B
+  torch.Tensor |           1 |     72     B
+5    . iteration.  Data residuum : 0.07389147917357677
+Virtual-mem-usage at niter  5 = 54.0% out of 31.1 GB
+Swap-mem-usage at niter  5 = 57.4% out of 2.0 GB
+Mem summary Tracker at iter = 5
+         types |   # objects |   total size
+============== | =========== | ============
+         float |          17 |    408     B
+          list |           0 |    160     B
+  torch.Tensor |           1 |     72     B
+          code |           0 |     43     B
+6    . iteration.  Data residuum : 0.07389147917097355
+Virtual-mem-usage at niter  6 = 54.1% out of 31.1 GB
+Swap-mem-usage at niter  6 = 57.4% out of 2.0 GB
+Mem summary Tracker at iter = 6
+         types |   # objects |   total size
+============== | =========== | ============
+          code |           0 |    501     B
+         float |          17 |    408     B
+          list |           0 |    224     B
+  torch.Tensor |           3 |    216     B
+7    . iteration.  Data residuum : 0.0738914791709654
+Virtual-mem-usage at niter  7 = 54.1% out of 31.1 GB
+Swap-mem-usage at niter  7 = 57.4% out of 2.0 GB
+Mem summary Tracker at iter = 7
+         types |   # objects |   total size
+============== | =========== | ============
+         float |          17 |    408     B
+          list |           0 |     96     B
+  torch.Tensor |           1 |     72     B
+8    . iteration.  Data residuum : 0.07389147917096538
+Virtual-mem-usage at niter  8 = 54.2% out of 31.1 GB
+Swap-mem-usage at niter  8 = 57.4% out of 2.0 GB
+Mem summary Tracker at iter = 8
+         types |   # objects |   total size
+============== | =========== | ============
+         float |          17 |    408     B
+  torch.Tensor |           1 |     72     B
+          list |           0 |     64     B
+9    . iteration.  Data residuum : 0.07389147917096497
+===== Attempting rank update ====
+Dörfer rank recommendation:  old rank = 1  -> new rank = 2
+Dörfer rank recommendation:  old rank = 1  -> new rank = 2
+Dörfer rank recommendation:  old rank = 1  -> new rank = 2
+Dörfer rank recommendation:  old rank = 1  -> new rank = 2
+Virtual-mem-usage at niter  9 = 54.3% out of 31.1 GB
+Swap-mem-usage at niter  9 = 57.4% out of 2.0 GB
+Mem summary Tracker at iter = 9
+         types |   # objects |   total size
+============== | =========== | ============
+          code |           0 |    501     B
+          list |           2 |    472     B
+         float |          18 |    432     B
+  torch.Tensor |          -2 |   -144     B
+10   . iteration.  Data residuum : 0.005449940208247342
+Virtual-mem-usage at niter  10 = 54.3% out of 31.1 GB
+Swap-mem-usage at niter  10 = 57.4% out of 2.0 GB
+Mem summary Tracker at iter = 10
+                                  types |   # objects |    total size
+======================================= | =========== | =============
+                                  float |          13 |     312     B
+                                   list |          -3 |     -64     B
+       multiprocessing.popen_fork.Popen |          -2 |     -96     B
+  multiprocessing.connection.Connection |          -2 |     -96     B
+          multiprocessing.util.Finalize |          -2 |     -96     B
+               memory_profiler.MemTimer |          -2 |     -96     B
+                                    str |          -2 |    -122     B
+                                    int |          -8 |    -224     B
+                                weakref |          -4 |    -288     B
+                                  tuple |          -6 |    -320     B
+                           torch.Tensor |          -5 |    -360     B
+                                    set |           0 |    -512     B
+                                   dict |         -12 |   -2576     B
+11   . iteration.  Data residuum : 1.6718189009570248e-05
+Virtual-mem-usage at niter  11 = 54.5% out of 31.1 GB
+Swap-mem-usage at niter  11 = 57.4% out of 2.0 GB
+Mem summary Tracker at iter = 11
+         types |   # objects |   total size
+============== | =========== | ============
+         float |          17 |    408     B
+  torch.Tensor |           1 |     72     B
+          list |          -4 |   -192     B
+           str |          -4 |   -318     B
+DEBUG:root:solver.linealg_solve_mem_profile = []
+DEBUG:root:solver.linealg_add_contraction_fw_mem_prof = [292.21484375, 292.265625, 292.2734375, 275.14453125, 275.17578125, 275.17578125, 276.81640625, 276.80078125, 276.8125, 275.8203125, 276.55859375, 276.5625, 276.5546875, 276.55859375, 276.5546875, 276.5625, 276.56640625, 276.56640625, 277.4921875, 277.484375, 277.48046875, 276.59765625, 277.33984375, 277.33984375, 277.73828125, 277.73828125, 277.734375, 282.13671875, 293.03125, 293.21484375, 318.55859375, 318.5078125, 318.59765625, 318.97265625, 318.99609375, 318.99609375]
+DEBUG:root:solver.linealg_add_contraction_bw_mem_prof = [292.265625, 292.28125, 292.26953125, 275.17578125, 275.19921875, 275.1875, 276.8046875, 276.8125, 276.8046875, 276.5625, 276.56640625, 276.55859375, 276.55859375, 276.56640625, 276.5546875, 276.55859375, 276.421875, 276.421875, 277.48828125, 277.484375, 277.48828125, 277.35546875, 277.34765625, 277.33203125, 277.7421875, 277.734375, 277.734375, 293.2265625, 293.23828125, 293.23828125, 318.58984375, 318.609375, 318.64453125, 319.0, 319.015625, 319.046875]
+DEBUG:root:lstsq mem profile = [292.21875, 292.26953125, 292.2734375, 292.2734375, 292.265625, 292.28125, 292.2734375, 292.2734375, 275.14453125, 275.17578125, 275.17578125, 275.18359375, 275.17578125, 275.19921875, 275.1875, 275.19140625, 276.81640625, 276.80078125, 276.8125, 276.80859375, 276.8125, 276.8125, 276.80859375, 276.8046875, 275.84375, 276.55859375, 276.5625, 276.5546875, 276.5625, 276.56640625, 276.55859375, 276.55078125, 276.5546875, 276.55859375, 276.55859375, 276.5546875, 276.5625, 276.57421875, 276.5546875, 276.5625, 276.5625, 276.5703125, 276.56640625, 276.56640625, 276.55859375, 276.56640625, 276.421875, 276.42578125, 277.4921875, 277.484375, 277.48046875, 277.48828125, 277.48828125, 277.484375, 277.48828125, 277.48046875, 276.75390625, 277.33984375, 277.33984375, 277.34765625, 277.35546875, 277.34765625, 277.33203125, 277.3359375, 277.73828125, 277.73828125, 277.734375, 277.7421875, 277.7421875, 277.734375, 277.734375, 277.7421875, 282.13671875, 293.03125, 293.21484375, 293.22265625, 293.2265625, 293.23828125, 293.23828125, 293.2421875, 318.55859375, 318.5234375, 318.6015625, 318.6015625, 318.60546875, 318.609375, 318.64453125, 318.6484375, 318.97265625, 318.99609375, 318.99609375, 318.99609375, 319.0, 319.015625, 319.046875, 318.99609375]
+12   . iteration.  Data residuum : 3.2409576972347065e-08
+Virtual-mem-usage at niter  12 = 54.4% out of 31.1 GB
+Swap-mem-usage at niter  12 = 57.4% out of 2.0 GB
+non rounded rank:  [1, 2, 2, 2, 2, 1]
+Update : rank r1 = 2 -> 2
+sing. vals for r1 :
+ tensor([26.5002, 20.0950])
+Update : rank r2 = 2 -> 2
+sing. vals for r2 :
+ tensor([24.1878, 22.8258])
+Update : rank r3 = 2 -> 2
+sing. vals for r3 :
+ tensor([24.1866, 22.8271])
+Update : rank r4 = 2 -> 2
+sing. vals for r4 :
+ tensor([26.4970, 20.0991])
+rounded rank:  [1, 2, 2, 2, 2, 1]
+Final residuum:  tensor(3.2410e-08)
+o===========================================================o
+|              Sorted tasks by amount of time               |
+o===========================================================o
+|  o ALS total                          20.331266  seconds |
+|  o local solve                        4.007909  seconds |
+|  o local solve via lstsq              3.979166  seconds |
+|  o left/right contractions            0.046194  seconds |
+|  o least square matrix allocation     0.036004  seconds |
+|  o left shifts                        0.010744  seconds |
+|  o right shifts                       0.010221  seconds |
+|  o dot rank one                       0.005630  seconds |
+|  o modify ranks                       0.002578  seconds |
+o===========================================================o
+
+Process finished with exit code 0
