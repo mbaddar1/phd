@@ -35,7 +35,7 @@ if __name__ == '__main__':
     # set tensor order, dimensions and ranks
     order = D_x
     phi_dims = [10] * order
-    ranks = [5] * (order - 1)
+    ranks = [10] * (order - 1)
 
     # Feature Generation
     tfeatures = orthpoly_basis(degrees=phi_dims, domain=[-1., 1], norm='H1')
@@ -53,14 +53,14 @@ if __name__ == '__main__':
     train_meta_data_file_prefix = 'train_meta_data_dz_dt'
     train_meta_data_dir = 'train_meta_data'
     timestamp_ = datetime.datetime.now().isoformat()
-    n_iterations = 10 if dry_run else 1000  # 2000
-    max_rank = 10
+    n_iterations = 10 if dry_run else 100  # 2000
+
     n_epochs = 10
     ######
     for d_y_idx in range(D_y):
         for epoch in range(n_epochs):
             for bi in range(n_batch):  # batch index
-                status = f"epoch # {epoch + 1} \t batch # {bi + 1} \t dim_idx {d_y_idx + 1} n_samples " \
+                status = f"Status: epoch # {epoch + 1} \t batch # {bi + 1} \t dim_idx {d_y_idx + 1} n_samples " \
                          f"= {batch_size} \t ranks = {ranks}"
                 print (f'{status} \t memory vmem percentage = {psutil.virtual_memory().percent}')
                 random_idx = np.random.randint(low=0, high=N - 1, size=batch_size)
@@ -68,9 +68,7 @@ if __name__ == '__main__':
                 Y_train = Y[random_idx, d_y_idx].view(-1, 1).double()
                 # rule = Dörfler_Adaptivity(delta=1e-6, maxranks=[10] * (order - 1), dims=phi_dims, rankincr=1)
                 xTT.fit(X_train, Y_train, iterations=n_iterations, verboselevel=1, rule=None, reg_param=1e-6)
-
-                train_meta_data_filepath = os.path.join(train_meta_data_dir,
-                                                        f'{train_meta_data_file_prefix}_Yd_{d_y_idx + 1}_maxrank_{max_rank}_n_iter_{n_iterations}_nsampels_{batch_size}_{timestamp_}.pkl')
-
-                logger.info(f'Finished training with at with N = {batch_size} for y_d|d={d_y_idx + 1} '
-                            f'with max_rank = {max_rank}')
+                print(f"finished batch {bi+1}")
+            print(f"finished epoch {epoch+1}")
+        print(f"finished dimension {d_y_idx}")
+    print("Finished training nested loop")

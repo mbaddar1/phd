@@ -827,9 +827,10 @@ class ALS_Regression(object):
                     assert isinstance(reg_param, float)
                     ATA += reg_param * lb.eye(ATA.shape[0])
 
-                c = lb.linalg.solve(ATA, ATy)
+                # c = lb.linalg.solve(ATA, ATy)
 
-                rel_err = lb.linalg.norm(A @ c - y) / lb.linalg.norm(y)
+                # rel_err = lb.linalg.norm(A @ c - y) / lb.linalg.norm(y)
+                rel_err = 0.5
                 if rel_err > 1e-4:
                     with TicToc(key=" o local solve via lstsq ", do_print=False, accumulate=True, sec_key="ALS: "):
                         if reg_param is not None:
@@ -862,10 +863,12 @@ class ALS_Regression(object):
 
         iter = 0
         gb_const = 1024 * 1024 * 1024
-        vmem_gb = np.round(psutil.virtual_memory().available / gb_const, 1)
+        vmem_gb = np.round(psutil.virtual_memory().total / gb_const, 1)
         while not stop_condition:
             print(
-                f'Percentage of consumed vmem at iter # {iter} = {psutil.virtual_memory().percent} out of {vmem_gb} GB')
+                f'Percentage of consumed vmem at iter # {iter} = '
+                f'{np.round(psutil.virtual_memory().used / gb_const, 1)} GB = '
+                f'{psutil.virtual_memory().percent}% out of {vmem_gb} GB')
             self.memory_track_print_diff("At loop beginning")
             # forward half-sweep
             for mu in range(d - 1):
@@ -1476,7 +1479,7 @@ def main(verbose):
     # print(lb.linalg.norm(res(xx2)-2*Xtt(xx2))/lb.linalg.norm(2*Xtt(xx2)))
 
     print("================= start fit ==============")
-    rule = Dörfler_Adaptivity(delta=1e-6, maxranks=[32] * (d - 1), dims=dims, rankincr=1)
+    # rule = Dörfler_Adaptivity(delta=1e-6, maxranks=[32] * (d - 1), dims=dims, rankincr=1)
     xTT.fit(xx, yy, iterations=2000, verboselevel=1, rule=None, reg_param=1e-6)
 
     print("non rounded rank: ", xTT.tt.rank)
