@@ -1,36 +1,24 @@
-import datetime
-import gc
-import logging
-import os.path
-import pickle
-
-from pympler import tracker
-import psutil
-import torch
-from memory_profiler import profile, memory_usage
 from types import LambdaType
+
+import psutil
 from colorama import Fore, Style
 # from numpy import core
 from numpy.core.numeric import full
 import copy
 
 from scipy.linalg import null_space
-
+from TT import tensor
 import numpy as np
 from numpy.polynomial.legendre import Legendre
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
+from pympler.tracker import SummaryTracker
 from itertools import product
 
-from torch.utils.hipify.hipify_python import InputError
-
-# from tictoc import TicToc
-from TT import tensor
-from TT.feature_utils import orthpoly_basis
 from TT.tictoc import TicToc
-# from feature_utils import orthpoly_basis
+
+from TT.feature_utils import orthpoly_basis
 
 # TODO: try import mechanic
 # import pytorch as lb
@@ -74,27 +62,27 @@ class Truncate(Rule):
 class Dörfler_Adaptivity(Rule):
     """
         Adaptivty rank rule :
-                 
-                - Dörfler condition is fullfilled if there exists L s.t. : 
-                        
+
+                - Dörfler condition is fullfilled if there exists L s.t. :
+
                         delta * (sum k=0^L  sigma[k] )  >=  sum_{k=L+1} sigma[k]
 
                 - ranks have an upper bound
                 - if Dörfler condition holds then  cutoff all singularvalues with index > L+1.
-                  In particular keep sigma[L+1] as a treshhold sing. val. keeping track of a max rank needed. 
+                  In particular keep sigma[L+1] as a treshhold sing. val. keeping track of a max rank needed.
                   It can be rounded later.
 
-                - if  the dörfler condition is not fullfilled for any L in [0,...,len(sigma)-1], then 
+                - if  the dörfler condition is not fullfilled for any L in [0,...,len(sigma)-1], then
                   the new rank is increased or stays the same, i.e.
 
                             new rank = min { maxrank, oldrank + rankincr* }
 
-                  here 
+                  here
                       rankincr*  = min (rankincr,  max possible rank increase)
 
-                  with 
+                  with
                         max possible rank increase =  difference of shapes of v
-    
+
     """
 
     def __init__(self, delta, maxranks, dims, rankincr=2, verbose=True):
@@ -124,7 +112,7 @@ class Dörfler_Adaptivity(Rule):
         # if self.verbose:
         #    for k in range(len(sigma)):
         #        l = lb.sum(sigma[:k])
-        #        r = lb.sum(sigma[k:]) 
+        #        r = lb.sum(sigma[k:])
         #        print("{k} :  l = {l}   {r} = r".format(k=k,l=l,r=r))
 
         for k in range(len(sigma)):
@@ -160,7 +148,7 @@ class Rank_One_Kick(Rule):
 
 # TODO @ David:
 #      Implement a round routine after fill random / add  / or more ?? (can be done by retract with uranks)
-#      Which a very small threshold that respects the maximal allowed rank    
+#      Which a very small threshold that respects the maximal allowed rank
 class TensorTrain(object):
     def __init__(self, dims, comp_list=None):
 
@@ -178,15 +166,15 @@ class TensorTrain(object):
             self.set_components(comp_list)
 
     def set_components(self, comp_list):
-        """ 
+        """
            @param comp_list: List of order 3 tensors representing the component tensors
                             = [C1, ..., Cd] with shape
                             Ci.shape = (ri, self.dims[i], ri+1)
-                            
+
                             with convention r0 = rd = 1
 
         """
-        # the length of the component list has to match 
+        # the length of the component list has to match
         assert (len(comp_list) == self.n_comps)
 
         # each component must be a order 3 tensor object
@@ -208,7 +196,7 @@ class TensorTrain(object):
     def fill_random(self, ranks):
         """
             Fills the TensorTrain with random elements for a given structure of ranks.
-            If entries in the TensorTrain object have been setted priviously, they are overwritten 
+            If entries in the TensorTrain object have been setted priviously, they are overwritten
             regardless of the existing rank structure.
 
             @param ranks #type list
@@ -243,7 +231,7 @@ class TensorTrain(object):
                 self.comps[pos] = u.reshape(s[0], s[1], u.shape[1])
                 self.comps[pos + 1] = lb.einsum('ij, jkl->ikl ', lb.diag(S) @ vh, self.comps[pos + 1])
 
-            # update the according th rank 
+            # update the according th rank
             # self.rank[pos + 1] = self.comps[pos].shape[2]
 
     def __shift_to_left(self, pos, variant):
@@ -264,12 +252,12 @@ class TensorTrain(object):
                 self.comps[pos] = vh.reshape(vh.shape[0], s[1], s[2])
                 self.comps[pos - 1] = lb.einsum('ijk, kl->ijl ', self.comps[pos - 1], u @ lb.diag(S))
 
-            # update the according th rank 
+            # update the according th rank
             # self.rank[pos] = self.comps[pos].shape[0]
 
     def set_core(self, mu, variant='qr'):
-        """ 
-        # TODO 
+        """
+        # TODO
         """
 
         cc = []  # changes components
@@ -280,7 +268,7 @@ class TensorTrain(object):
             # from left to right shift of the non-orthogonal component
             for pos in range(0, mu):
                 self.__shift_to_right(pos, variant)
-            # right to left shift of the non-orthogonal component          
+            # right to left shift of the non-orthogonal component
             for pos in range(self.n_comps - 1, mu, -1):
                 self.__shift_to_left(pos, variant)
             # self.rank[mu+1] = self.comps[mu].shape[2]
@@ -322,9 +310,9 @@ class TensorTrain(object):
         self.core_position += shift
 
     def dot_rank_one(self, rank1obj):
-        """ 
+        """
           Implements the multidimensional contraction of the underlying Tensor Train object
-          with a rank 1 object being product of vectors of sizes di 
+          with a rank 1 object being product of vectors of sizes di
           @param rank1obj: a list of vectors [vi i = 0, ..., modes-1] with len(vi)=di
                            vi is of shape (b,di) with bi > 0
         """
@@ -334,7 +322,7 @@ class TensorTrain(object):
             for pos in range(0, self.n_comps):
                 # match of inner dimension with respective vector size
                 assert (self.comps[pos].shape[1] == rank1obj[pos].shape[1])
-                # vectors must be 2d objects 
+                # vectors must be 2d objects
                 assert (len(rank1obj[pos].shape) == 2)
 
             G = [lb.einsum('ijk, bj->ibk', c, v) for c, v in zip(self.comps, rank1obj)]
@@ -357,7 +345,7 @@ class TensorTrain(object):
                 print(self.comps[pos].shape[1])
                 print(rank1obj[pos - 1].shape[1])
                 assert (self.comps[pos].shape[1] == rank1obj[pos - 1].shape[1])
-                # vectors must be 2d objects 
+                # vectors must be 2d objects
                 assert (len(rank1obj[pos - 1].shape) == 2)
 
             G = [lb.einsum('ijk, bj->ibk', c, v) for c, v in zip(self.comps[1:], rank1obj)]
@@ -369,13 +357,13 @@ class TensorTrain(object):
                 # res = lb.dot(G[pos], res)
                 res = lb.einsum('ibj, jbk -> ibk', G[pos], res)  # k = 1 only
 
-            res = lb.einsum('idj,jbk->ibdk', self.comps[0], res)  # i==k==1 
+            res = lb.einsum('idj,jbk->ibdk', self.comps[0], res)  # i==k==1
 
             return res.reshape(res.shape[1], res.shape[2])
 
     def full(self):
         """
-            Obtain the underlying full tensor. 
+            Obtain the underlying full tensor.
 
             WARNING: This can become abitrary slow and may exceed memory.
         """
@@ -447,9 +435,9 @@ class TensorTrain(object):
                     k = new_rank - len(sigma)
 
                     # 1. Add  k new columns to the left unfolding of u :
-                    #   - leftunfold(u)  is  M x r matrix 
-                    #   - add  k orthogonal columns called u_k to u to obtain  upk of shape M x ( r  + k )  
-                    #   - undo the left unfolding w.r.t. M  and store  self.comps[pos] = upk 
+                    #   - leftunfold(u)  is  M x r matrix
+                    #   - add  k orthogonal columns called u_k to u to obtain  upk of shape M x ( r  + k )
+                    #   - undo the left unfolding w.r.t. M  and store  self.comps[pos] = upk
                     # "add" random vectors from kernel of u^T as orthogonal projection of a random vectors
                     u_k = lb.random.rand(u.shape[0], k)
                     u_k -= (u @ u.T) @ u_k
@@ -461,7 +449,7 @@ class TensorTrain(object):
                     # 2. Enlarge the singular values s with k new very small entries.
                     s_pk = lb.concatenate([sigma, lb.array([1e-16] * k)])
 
-                    # 3.  K = v * self.comps[pos+1]    w.r.t. 3rd  and right unfolding 
+                    # 3.  K = v * self.comps[pos+1]    w.r.t. 3rd  and right unfolding
                     #      yields a   r x N orthogonal matrix. Add k orthgonal rows K_k
                     #     to obtain a (r+k) x N orthogonal matrix K_kp = []
                     K = lb.einsum('ir, rkl->ikl ', v, self.comps[pos + 1])
@@ -657,14 +645,14 @@ def conjugate_grad(S, b, x, tol=1e-3):
 
 class ALS_Regression(object):
     """
-    TODO basis choice for the fitting for numerical stability : 
+    TODO basis choice for the fitting for numerical stability :
 
-                waehle basis  B ortho bzgl ||.||_1 
+                waehle basis  B ortho bzgl ||.||_1
 
 
-                min ||f- TT||_0  + lam ||TT||_1 
+                min ||f- TT||_0  + lam ||TT||_1
 
-                berechne gram matrix von B bzgl  0  = G 
+                berechne gram matrix von B bzgl  0  = G
 
 
                 G = eigen value representatn  =  U D U^T
@@ -674,35 +662,32 @@ class ALS_Regression(object):
 
     def __init__(self, xTT):
         self.xTT = xTT
-        # left and right contraction of non-active components 
+        # left and right contraction of non-active components
         self.L = None
         self.R = None
+
         # self.loc_solver_opt = {'modus' : 'normal', }
-        # memory profiling data
-        self.linealg_solve_mem_profile = []
-        self.add_contraction_forward_sweep_mem_profile = []
-        self.add_contraction_backward_sweep_profile = []
-        self.lstsq_mem_profile = []
+        self.memory_summary_tracker = SummaryTracker()
+
+    def memory_track_print_diff(self, msg):
+        if self.memory_summary_tracker is not None:  # mem-track is active
+            print(msg)
+            self.memory_summary_tracker.print_diff()
 
     # TODO enable ALS with only forward half sweeps
     # TODO early stopping when residual grows
     # TODO early stopping when rank updates yield not significant improvement/overfitting
     # TODO early stopping based on overfitting (compute residual on separate validation set)
     # TODO L1 regularisation (Philipp)
-    @staticmethod
-    def mem_profile_diff_print(tracker, msg, activate=False):
-        if activate:  # control overhead
-            print(msg)
-            tracker.print_diff()
-
     def solve(self, x, y, iterations, tol, verboselevel, rule=None, reg_param=None):
 
         """
-            @param loc_solver : 'normal', 'least_square',  
+            @param loc_solver : 'normal', 'least_square',
             x shape (batch_size, input_dim)
             y shape (batch_size, 1)
         """
-        tol = -1  # FIXME hack to make code go over all iterations for memory profiling
+
+        tol = -1  # FIXME hack to make full iterations for memory leak check
         # size of the data batch
         b = y.shape[0]
 
@@ -714,21 +699,8 @@ class ALS_Regression(object):
 
         # TODO: name stack instead of list
         # initialize lists for left and right contractions
-
         R_stack = [lb.ones((b, 1))]
         L_stack = [lb.ones((b, 1))]
-        # meta data
-        train_meta_data = dict()
-        train_meta_data['iter_loss'] = []
-
-        gb_const = 1024 * 1024 * 1024
-        virtual_mem_total = psutil.virtual_memory().total / gb_const
-        swap_mem = psutil.swap_memory().total / gb_const
-        tot_mem = (virtual_mem_total + swap_mem)
-        train_meta_data['virtual_mem_tot_gb'] = virtual_mem_total
-        train_meta_data['swap_mem_tot_gb'] = swap_mem
-        train_meta_data['iter_virtual_mem_perc'] = []
-        train_meta_data['iter_swap_mem_perc'] = []
 
         d = self.xTT.tt.n_comps
 
@@ -748,23 +720,23 @@ class ALS_Regression(object):
         def solve_local_iterativeCG(mu, L, R):
             """
                 solves the local system of equation approximately in a matrix free fashion
-                performing   one gradient decent step ( = one Conjugate Gradient step) with 
-                optimal stepsize. 
+                performing   one gradient decent step ( = one Conjugate Gradient step) with
+                optimal stepsize.
 
                 min  || A x - b ||^2 +  lam ||x||_F^2
 
                 with stationary point equation:
 
-                     S x  = b*       
+                     S x  = b*
 
-                with 
+                with
                     S = (2 A^t*A + lam I)
                     b* = A^t b
 
-                we set : 
+                we set :
 
 
-                r = b* - Sx 
+                r = b* - Sx
                 s = r^Tr / r^T(S r)
                 x = x + s* r
 
@@ -791,23 +763,23 @@ class ALS_Regression(object):
         def solve_local_iterativeCG_matrixfree(mu, L, R):
             """
                 solves the local system of equation approximately in a matrix free fashion
-                performing   one gradient decent step ( = one Conjugate Gradient step) with 
-                optimal stepsize. 
+                performing   one gradient decent step ( = one Conjugate Gradient step) with
+                optimal stepsize.
 
                 min  || A x - b ||^2 +  lam ||x||_F^2
 
                 with stationary point equation:
 
-                     S x  = b*       
+                     S x  = b*
 
-                with 
+                with
                     S = (2 A^t*A + lam I)
                     b* = A^t b
 
-                we set : 
+                we set :
 
 
-                r = b* - Sx 
+                r = b* - Sx
                 s = r^Tr / r^T(S r)
                 x = x + s* r
 
@@ -816,7 +788,7 @@ class ALS_Regression(object):
             """
             core_shape = self.xTT.tt.comps[mu].shape
             with TicToc(key=" o CG step workload ", do_print=False, accumulate=True, sec_key="ALS: "):
-                # Compute  S*x 
+                # Compute  S*x
                 def S(v):
                     with TicToc(key=" o S application ", do_print=False, accumulate=True, sec_key="ALS: "):
                         c = v.reshape(core_shape)
@@ -837,16 +809,6 @@ class ALS_Regression(object):
 
                 self.xTT.tt.comps[mu] = v.reshape(c.shape)
 
-        def compare_list_tensors(l1, l2):
-            if len(l1) != len(l2):
-                return False
-            n = len(l1)
-            for i in range(n):
-                eq = torch.equal(l1[i], l2[i])
-                if not eq:
-                    return False
-            return True
-
         def solve_local(mu, L, R):
 
             with TicToc(key=" o least square matrix allocation ", do_print=False, accumulate=True, sec_key="ALS: "):
@@ -858,44 +820,24 @@ class ALS_Regression(object):
 
             with TicToc(key=" o local solve ", do_print=False, accumulate=True, sec_key="ALS: "):
 
-                # c, res, rank, sigma = lb.linalg.lstsq(A, y, rcond = None)  
+                # c, res, rank, sigma = lb.linalg.lstsq(A, y, rcond = None)
                 ATA, ATy = A.T @ A, A.T @ y
 
                 if reg_param is not None:
                     assert isinstance(reg_param, float)
                     ATA += reg_param * lb.eye(ATA.shape[0])
-                # proc = (lb.linalg.solve, (ATA, ATy), {})
-                # # memory profiling
-                # ret = memory_usage(proc=proc, max_usage=True, retval=True)
-                # c = ret[1]
-                # mem_usg = ret[0]
-                # self.linealg_solve_mem_profile.append(mem_usg)
-                ALS_Regression.mem_profile_diff_print(mem_summary_tracker, "Before lb.linalg.solve in solve_local")
-                c = lb.linalg.solve(ATA, ATy)
-                ALS_Regression.mem_profile_diff_print(mem_summary_tracker, "After lb.linalg.solve in solve_local")
-                rel_err = lb.linalg.norm(A @ c - y) / lb.linalg.norm(y)
 
+                c = lb.linalg.solve(ATA, ATy)
+
+                rel_err = lb.linalg.norm(A @ c - y) / lb.linalg.norm(y)
                 if rel_err > 1e-4:
                     with TicToc(key=" o local solve via lstsq ", do_print=False, accumulate=True, sec_key="ALS: "):
                         if reg_param is not None:
                             Ahat = lb.concatenate([A, lb.sqrt(reg_param) * lb.eye(A.shape[1])], 0)
                             yhat = lb.concatenate([y, lb.zeros((A.shape[1], 1))], 0)
-
-                            # proc = (lb.linalg.lstsq, (Ahat, yhat), {'rcond': None})
-                            # m = memory_usage(proc=proc, retval=True, max_usage=True)
-                            # c, res, rank, sigma = m[1]
-                            ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
-                                                                  "Before lb.linalg.lstsq with no reg_param")
                             c, res, rank, sigma = lb.linalg.lstsq(Ahat, yhat, rcond=None)
-                            ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
-                                                                  "After lb.linalg.lstsq with no reg_param")
-
                         else:
-                            ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
-                                                                  "Before lb.linalg.lstsq with reg_param")
                             c, res, rank, sigma = lb.linalg.lstsq(A, y, rcond=None)
-                            ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
-                                                                  "After lb.linalg.lstsq with reg_param")
 
                 s = self.xTT.tt.comps[mu].shape
                 self.xTT.tt.comps[mu] = c.reshape(s[0], s[1], s[2])
@@ -903,8 +845,6 @@ class ALS_Regression(object):
         # initialize residual
         # TODO rename to rel res
         curr_res = lb.linalg.norm(self.xTT(x) - y) ** 2 / lb.linalg.norm(y) ** 2  # quadratic norm
-        # add train meta data
-        train_meta_data['iter_loss'].append(curr_res.item())
         if verboselevel > 0: print("START residuum : ", curr_res)
 
         # initialize stop condition
@@ -919,70 +859,33 @@ class ALS_Regression(object):
             add_contraction(mu, R_stack, side='right')
 
         history = []
-        mem_summary_tracker = tracker.SummaryTracker()
+
         iter = 0
+        gb_const = 1024*1024*1024
+        vmem_gb = np.round(psutil.virtual_memory().available /gb_const,1)
         while not stop_condition:
-            # mem profile
-            # if iter % 10 == 0:
-            #     print(f"Mem summary Tracker at iter = {iter}")
-            #     mem_summary_tracker.print_diff()
+            print(f'Percentage of consumed vmem at iter # {iter} = {psutil.virtual_memory().percent} out of {vmem_gb} GB')
+            self.memory_track_print_diff("At loop beginning")
             # forward half-sweep
-            # if iter % 1 == 0:
-            # print(f'Forcing Garbage collection at iter {iter}')
-            # gc.collect()
             for mu in range(d - 1):
                 self.xTT.tt.set_core(mu)
                 if mu > 0:
-                    # L_stack_copy = L_stack.copy()
-
-                    ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
-                                                          "Before add_contraction +del R_stack[-1] in forward sweep")
                     add_contraction(mu - 1, L_stack, side='left')
-
-                    # # FIXME memory profiling ,overhead, remove
-                    # proc = (add_contraction, (mu - 1, L_stack), {'side': 'left'})
-                    # m = memory_usage(proc=proc, max_usage=True, retval=False, max_iterations=1)
-                    # self.add_contraction_forward_sweep_mem_profile.append(m)
-                    # # assert compare_list_tensors(L_stack, L_stack_copy)
-                    # # FIXME END memory profiling ####
                     del R_stack[-1]
-                    ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
-                                                          "After add_contraction +del R_stack[-1] in forward half sweep")
-                ALS_Regression.mem_profile_diff_print(mem_summary_tracker, "Before loc_solver in forward half sweep")
                 loc_solver(mu, L_stack[-1], R_stack[-1])
-                ALS_Regression.mem_profile_diff_print(mem_summary_tracker, "After loc_solver in forward half sweep")
+
             # before back sweep
             self.xTT.tt.set_core(d - 1)
-            ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
-                                                  "Before add_contraction + del R_stack[-1] in before back sweep")
             add_contraction(d - 2, L_stack, side='left')
             del R_stack[-1]
-            ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
-                                                  "After add_contraction + del R_stack[-1] in before back sweep")
 
             # backward half sweep
             for mu in range(d - 1, 0, -1):
                 self.xTT.tt.set_core(mu)
                 if mu < d - 1:
-                    # R_stack_copy = R_stack.copy()
-                    ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
-                                                          "Before add_contraction and del L_stack in "
-                                                          "backward half-sweep")
                     add_contraction(mu + 1, R_stack, side='right')
-
-                    # # FIXME memory profiling, overhead, remove
-                    # proc = (add_contraction, (mu + 1, R_stack), {'side': 'right'})
-                    # m = memory_usage(proc=proc, max_usage=True, retval=False, max_iterations=1)
-                    # self.add_contraction_backward_sweep_profile.append(m)
-                    # # assert compare_list_tensors(R_stack, R_stack_copy)  # test same input/output
-                    # ## FIXME end memory profiling
                     del L_stack[-1]
-                    ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
-                                                          "After add_contraction and del L_stack in "
-                                                          "backward half-sweep")
-                ALS_Regression.mem_profile_diff_print(mem_summary_tracker, "Before loc_solver in backward half-sweep")
                 loc_solver(mu, L_stack[-1], R_stack[-1])
-                ALS_Regression.mem_profile_diff_print(mem_summary_tracker, "After loc_solver in backward half-sweep")
 
             # before forward sweep
             self.xTT.tt.set_core(0)
@@ -992,7 +895,6 @@ class ALS_Regression(object):
             # update stop condition
             niter += 1
             curr_res = lb.linalg.norm(self.xTT(x) - y) ** 2 / lb.linalg.norm(y) ** 2
-
             # update reg_param
             # reg_param = 1e-6*curr_res.item()
             stop_condition = niter > iterations or curr_res < tol
@@ -1023,22 +925,8 @@ class ALS_Regression(object):
 
                         history = []
 
-            # Train meta data (loss, mem)
-            # loss
-            train_meta_data['iter_loss'].append(curr_res.item())
-            # mem
-            vmem = psutil.virtual_memory()
-            swap_mem = psutil.swap_memory()
-
-            train_meta_data['iter_virtual_mem_perc'].append(vmem.percent)
-            train_meta_data['iter_swap_mem_perc'].append(swap_mem.percent)
-            print(
-                f"Virtual-mem-usage at niter  {niter} = {vmem.percent}% out of {np.round(vmem.total / gb_const, 2)} GB")
-            print(
-                f"Swap-mem-usage at niter  {niter} = {swap_mem.percent}% out of {np.round(swap_mem.total / gb_const, 2)} GB")
-            iter += 1
-
-        return self.xTT.tt, train_meta_data
+            self.memory_track_print_diff("At loop end")
+        return self.xTT.tt
 
     def tangent_fit(self,
                     x,
@@ -1048,7 +936,7 @@ class ALS_Regression(object):
                     reg0=False,
                     reg0_coeff=1e-2,
                     verbose=True):
-        """performs a fit sum_k| T(x_k) - y_k |^2 ---> min_T, 
+        """performs a fit sum_k| T(x_k) - y_k |^2 ---> min_T,
         where x_k are the vector valued data points, y_k are the targets and
         the minimum is sought over elements of the tangent space to the TT
         manifold M_r at the current TT, where r is the current TTs rank.
@@ -1263,17 +1151,17 @@ class Extended_TensorTrain(object):
         """
             tfeatures should be a function returning evaluations of feature functions if given a data batch as argument,
             i.e. tfeatures(x), where x is an lb.array of size (batch_size, n_comps),
-            is a list of lb.arrays such that tfeatures(x)[i][j,k] is the k-th feature function (in that dimension) 
+            is a list of lb.arrays such that tfeatures(x)[i][j,k] is the k-th feature function (in that dimension)
             evaluated at the j-th samples i-th component
         """
 
         self.tfeatures = tfeatures
         self.d = self.tfeatures.d
 
-        # TODO also allow ranks len = d + 1  with [1] [...] + [1] shape 
+        # TODO also allow ranks len = d + 1  with [1] [...] + [1] shape
         assert (len(ranks) == self.tfeatures.d - 1)
         self.rank = ranks
-        self.train_meta_data = None
+
         self.tt = TensorTrain(tfeatures.degs)
         if comps is None:
             self.tt.fill_random(ranks)
@@ -1332,20 +1220,15 @@ class Extended_TensorTrain(object):
 
         return gradient
 
-    def fit_batch(self, x, y, iterations, rule=None, tol=8e-6, verboselevel=0, reg_param=None):
-        pass
-
     def fit(self, x, y, iterations, rule=None, tol=8e-6, verboselevel=0, reg_param=None):
         """
-            Fits the Extended Tensortrain to the given data (x,y) of some target function 
-                     f : K\subset IR^d to IR^m 
+            Fits the Extended Tensortrain to the given data (x,y) of some target function
+                     f : K\subset IR^d to IR^m
                                      x -> f(x) = y.
 
             @param x : input parameter of the training data set : x with shape (b,d)   b \in \mathbb{N}
             @param y : output data with shape (b,m)
         """
-        logging.basicConfig(level=logging.DEBUG)
-        logger = logging.getLogger()
 
         assert (x.shape[1] == self.d)
 
@@ -1353,16 +1236,7 @@ class Extended_TensorTrain(object):
         # with TicToc(key=" o ALS total ", do_print=False, accumulate=True, sec_key="ALS: "):
         #     res = solver.solve(x,y,iterations,tol,verboselevel, rule)
         with TicToc(key=" o ALS total ", do_print=False, accumulate=True, sec_key="ALS: "):
-            res, self.train_meta_data = solver.solve(x, y, iterations, tol, verboselevel, rule, reg_param)
-
-            # logger.debug(f"solver.linealg_solve_mem_profile = {solver.linealg_solve_mem_profile}")
-            # logger.debug(
-            #     f"solver.linealg_add_contraction_fw_mem_prof = {solver.add_contraction_forward_sweep_mem_profile}")
-            # logger.debug(
-            #     f"solver.linealg_add_contraction_bw_mem_prof = {solver.add_contraction_backward_sweep_profile}")
-            # logger.debug(
-            #     f"lstsq mem profile = {solver.lstsq_mem_profile}")
-
+            res = solver.solve(x, y, iterations, tol, verboselevel, rule, reg_param)
         self.tt.set_components(res.comps)
 
     def tangent_fit(self, x, y, reg=False, reg_coeff=1e-6, reg0=False, reg0_coeff=1e-2, verbose=True):
@@ -1373,9 +1247,9 @@ class Extended_TensorTrain(object):
         return res
 
     # TODO: - move to base class
-    #       - enable other rules than retraction 
+    #       - enable other rules than retraction
     def tangent_add(self, alpha, W):
-        """performs an addition U + alpha*del_U, where U is the current TT and 
+        """performs an addition U + alpha*del_U, where U is the current TT and
         del_U is the tangent space element represented by W.
 
         Parameters
@@ -1550,13 +1424,13 @@ def main(verbose):
     # ranks = [4] * (d-1)
 
     ranks2 = [1] * (d - 1)
-
+    ranks3 = [10] * (d - 1)
     # tfeatures = TensorPolynomial(dims)
     # tfeatures.set_polynomial(polytype = Legendre.basis)
 
     tfeatures = orthpoly_basis(degrees=dims, domain=[-1., 1], norm='H1')
 
-    xTT = Extended_TensorTrain(tfeatures, ranks2)
+    xTT = Extended_TensorTrain(tfeatures, ranks)
 
     # Create a target solution
     # X = TensorTrain(dims= dims)
@@ -1571,7 +1445,7 @@ def main(verbose):
     # f = lambda x :  lb.tensor(np.sum(A[i]*tensorleg(x, i) for i in product(*[list(range(d)) for d in dims])))
 
     # sin ( x)  = (e^(ix) - e^{-ix}) / 2i   in the complex field, matrix rank is invariant of field choise, thus f has FTT rank 2
-    f = lambda x: lb.tensor(np.sin(np.sum(x.cpu()[:, i] ** 2 for i in range(d))))
+    f = lambda x: lb.tensor(np.sin(np.sum(x[:, i] ** 2 for i in range(d))))
 
     from scipy.linalg import expm
 
@@ -1601,13 +1475,8 @@ def main(verbose):
 
     print("================= start fit ==============")
     rule = Dörfler_Adaptivity(delta=1e-6, maxranks=[32] * (d - 1), dims=dims, rankincr=1)
-    n_iters = 300
-    xTT.fit(xx, yy, iterations=n_iters, verboselevel=1, rule=rule, reg_param=1e-6)
-    train_meta_data_dict = xTT.train_meta_data
-    train_meta_data_dir = 'train_meta_data'
-    timestamp_ = datetime.datetime.now().isoformat()
-    train_meta_data_file_name = f'train_meta_data_sum_sin_xj_pow_2_n_iter_{n_iters}_{timestamp_}.pkl'
-    pickle.dump(train_meta_data_dict, open(os.path.join(train_meta_data_dir, train_meta_data_file_name), 'wb'))
+    xTT.fit(xx, yy, iterations=2000, verboselevel=1, rule=None, reg_param=1e-6)
+
     print("non rounded rank: ", xTT.tt.rank)
     xTT.tt.round(1e-6, verbose=True)
     print("rounded rank: ", xTT.tt.rank)
@@ -1615,7 +1484,7 @@ def main(verbose):
 
     TicToc.sortedTimes()
 
-    # if d == 2 : 
+    # if d == 2 :
     #     fig = plt.figure()
 
     #     X = lb.linspace(-1,1,100)

@@ -35,7 +35,7 @@ if __name__ == '__main__':
     # set tensor order, dimensions and ranks
     order = D_x
     phi_dims = [10] * order
-    ranks = [10] * (order - 1)
+    ranks = [5] * (order - 1)
 
     # Feature Generation
     tfeatures = orthpoly_basis(degrees=phi_dims, domain=[-1., 1], norm='H1')
@@ -46,41 +46,31 @@ if __name__ == '__main__':
     tracker.track_object(xTT)
     logger.debug(f'Generated xTT')
 
-    # Training
+    # Training configs
     dry_run = False
-    n_samples = 10 if dry_run else 500
-    random_idx = np.random.randint(low=0, high=N - 1, size=n_samples)
-    epochs = 1
-
+    batch_size = 10 if dry_run else 100
+    n_batch = 10
     train_meta_data_file_prefix = 'train_meta_data_dz_dt'
     train_meta_data_dir = 'train_meta_data'
     timestamp_ = datetime.datetime.now().isoformat()
-    n_iterations = 10 if dry_run else 100  # 2000
-    n_batch_iter = 10
+    n_iterations = 10 if dry_run else 1000  # 2000
     max_rank = 10
-    # TODO
-    # epochs
-    # all dims
-    for bi in range(n_batch_iter):  # batch index
-        print(f"batch # {bi + 1} with memory percentage = {psutil.virtual_memory().percent}")
-        for d_y_idx in range(D_y):
-            # memory profiling
-            # memory_log_filename = f"memory_profiling_logs/memory_profile_log_Yd_{d_y_idx}_max_rank_{max_rank}
-            # _niter_{n_iterations}_nsample_{n_samples}.logs"
-            # create_memory_profiler_logger(logger_name="memory_profile_logger", log_file_name=memory_log_filename,
-            #                               logging_level=logging.DEBUG, log_format=FORMAT)
-            # ##
-            logger.info(f'Starting training with at epoch with N = {n_samples} for y_d|d={d_y_idx + 1} '
-                        f'with max_rank = {max_rank}')
-            X_train = X[random_idx, :].double()
-            Y_train = Y[random_idx, d_y_idx].view(-1, 1).double()
-            rule = Dörfler_Adaptivity(delta=1e-6, maxranks=[max_rank] * (order - 1), dims=phi_dims, rankincr=1)
-            xTT.fit(X_train, Y_train, iterations=n_iterations, verboselevel=1, rule=None, reg_param=1e-6)
-            tracker.stats.print_summary()
-            train_meta_data_filepath = os.path.join(train_meta_data_dir,
-                                                    f'{train_meta_data_file_prefix}_Yd_{d_y_idx + 1}_maxrank_{max_rank}_n_iter_{n_iterations}_nsampels_{n_samples}_{timestamp_}.pkl')
-            pickle.dump(xTT.train_meta_data, open(train_meta_data_filepath, 'wb'))
+    n_epochs = 10
+    ######
+    for d_y_idx in range(D_y):
+        for epoch in range(n_epochs):
+            for bi in range(n_batch):  # batch index
+                status = f"epoch # {epoch + 1} \t batch # {bi + 1} \t dim_idx {d_y_idx + 1} n_samples " \
+                         f"= {batch_size} \t ranks = {ranks}"
+                print (f'{status} \t memory vmem percentage = {psutil.virtual_memory().percent}')
+                random_idx = np.random.randint(low=0, high=N - 1, size=batch_size)
+                X_train = X[random_idx, :].double()
+                Y_train = Y[random_idx, d_y_idx].view(-1, 1).double()
+                # rule = Dörfler_Adaptivity(delta=1e-6, maxranks=[10] * (order - 1), dims=phi_dims, rankincr=1)
+                xTT.fit(X_train, Y_train, iterations=n_iterations, verboselevel=1, rule=None, reg_param=1e-6)
 
-            logger.info(f'Finished training with at with N = {n_samples} for y_d|d={d_y_idx + 1} '
-                        f'with max_rank = {max_rank}')
-            gc.collect()
+                train_meta_data_filepath = os.path.join(train_meta_data_dir,
+                                                        f'{train_meta_data_file_prefix}_Yd_{d_y_idx + 1}_maxrank_{max_rank}_n_iter_{n_iterations}_nsampels_{batch_size}_{timestamp_}.pkl')
+
+                logger.info(f'Finished training with at with N = {batch_size} for y_d|d={d_y_idx + 1} '
+                            f'with max_rank = {max_rank}')
