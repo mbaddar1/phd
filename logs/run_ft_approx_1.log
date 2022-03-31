@@ -1,0 +1,685 @@
+pytorch version:  1.11.0+cu102
+True
+[ft_approx_train.py:30 -             <module>() ] loaded data pkl data/data_2022-03-13T10_09_04.888518.pkl !
+[ft_approx_train.py:45 -             <module>() ] Features Generated
+[ft_approx_train.py:50 -             <module>() ] Generated xTT
+Status: epoch # 1 	 batch # 1 	 dim_idx 1 n_samples = 500 	 ranks = [20, 20, 20, 20] 	 memory vmem percentage = 50.8
+START residuum :  tensor(9.5794e+151, grad_fn=<DivBackward0>)
+Percentage of consumed vmem at iter # 0 = 11.5 GB = 50.8% out of 31.1 GB
+fw:loc_solver : vmem_increase = 5.57 MB ; 0.0005 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 108.83 MB ; 0.0092 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 132.2 MB ; 0.0111 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 46.92 MB ; 0.0039 %
+tot:fw_half_sweep : vmem_increase = 293.52 MB ; 0.0248 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 193.11 MB ; 0.0159 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 140.39 MB ; 0.0114 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.25 MB ; 0.0031 %
+tot:bw_half_sweep : vmem_increase = 371.75 MB ; 0.0307 %
+1    . iteration.  Data residuum : 0.9629103553271173
+delta_tol : vmem_increase = 662.08 MB ; 0.056 %
+Percentage of consumed vmem at iter # 1 = 12.2 GB = 52.9% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 39.01 MB ; 0.0031 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 134.84 MB ; 0.0108 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 26.05 MB ; 0.0021 %
+tot:fw_half_sweep : vmem_increase = 199.9 MB ; 0.016 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 100.85 MB ; 0.008 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 154.55 MB ; 0.0121 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 67.35 MB ; 0.0052 %
+tot:bw_half_sweep : vmem_increase = 322.75 MB ; 0.0255 %
+2    . iteration.  Data residuum : 0.9977916772416523
+delta_tol : vmem_increase = 522.65 MB ; 0.0419 %
+Percentage of consumed vmem at iter # 2 = 12.7 GB = 54.5% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 98.82 MB ; 0.0076 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 138.57 MB ; 0.0106 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 159.81 MB ; 0.0121 %
+tot:fw_half_sweep : vmem_increase = 397.2 MB ; 0.0306 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 0.03 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 137.18 MB ; 0.0102 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 129.12 MB ; 0.0095 %
+tot:bw_half_sweep : vmem_increase = 266.32 MB ; 0.0199 %
+3    . iteration.  Data residuum : 0.8974799117765402
+delta_tol : vmem_increase = 663.53 MB ; 0.051 %
+Percentage of consumed vmem at iter # 3 = 13.3 GB = 56.6% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 70.46 MB ; 0.0052 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 136.88 MB ; 0.01 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 68.14 MB ; 0.0049 %
+tot:fw_half_sweep : vmem_increase = 275.48 MB ; 0.0202 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 69.13 MB ; 0.005 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 135.77 MB ; 0.0097 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.09 MB ; 0.0027 %
+tot:bw_half_sweep : vmem_increase = 242.99 MB ; 0.0174 %
+4    . iteration.  Data residuum : 0.9160280426142458
+delta_tol : vmem_increase = 518.46 MB ; 0.0379 %
+Percentage of consumed vmem at iter # 4 = 13.8 GB = 58.2% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 36.82 MB ; 0.0026 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 138.81 MB ; 0.0098 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 38.27 MB ; 0.0027 %
+tot:fw_half_sweep : vmem_increase = 213.9 MB ; 0.0151 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 40.61 MB ; 0.0028 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 139.59 MB ; 0.0097 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 36.94 MB ; 0.0025 %
+tot:bw_half_sweep : vmem_increase = 217.14 MB ; 0.0151 %
+5    . iteration.  Data residuum : 0.981789149009201
+delta_tol : vmem_increase = 431.03 MB ; 0.0304 %
+Percentage of consumed vmem at iter # 5 = 14.3 GB = 59.7% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 38.46 MB ; 0.0026 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 141.73 MB ; 0.0097 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 37.87 MB ; 0.0026 %
+tot:fw_half_sweep : vmem_increase = 218.06 MB ; 0.0149 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.42 MB ; 0.0026 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 141.41 MB ; 0.0095 %
+bw add_contraction+del L_stack : vmem_increase = 0.01 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 37.62 MB ; 0.0025 %
+tot:bw_half_sweep : vmem_increase = 217.46 MB ; 0.0147 %
+6    . iteration.  Data residuum : 0.9567574137820467
+delta_tol : vmem_increase = 435.52 MB ; 0.0298 %
+Percentage of consumed vmem at iter # 6 = 14.7 GB = 61.1% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 35.66 MB ; 0.0024 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 140.98 MB ; 0.0093 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 39.29 MB ; 0.0026 %
+tot:fw_half_sweep : vmem_increase = 215.93 MB ; 0.0144 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.3 MB ; 0.0025 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 138.27 MB ; 0.009 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 37.24 MB ; 0.0024 %
+tot:bw_half_sweep : vmem_increase = 213.82 MB ; 0.014 %
+7    . iteration.  Data residuum : 0.9537131889005243
+delta_tol : vmem_increase = 429.75 MB ; 0.0286 %
+Percentage of consumed vmem at iter # 7 = 15.1 GB = 62.4% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 38.29 MB ; 0.0025 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 138.36 MB ; 0.0089 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 36.89 MB ; 0.0024 %
+tot:fw_half_sweep : vmem_increase = 213.54 MB ; 0.0138 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 44.48 MB ; 0.0028 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 138.36 MB ; 0.0088 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 36.78 MB ; 0.0023 %
+tot:bw_half_sweep : vmem_increase = 219.61 MB ; 0.014 %
+8    . iteration.  Data residuum : 1.0496114130483274
+delta_tol : vmem_increase = 433.16 MB ; 0.028 %
+Percentage of consumed vmem at iter # 8 = 15.5 GB = 63.9% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 38.28 MB ; 0.0024 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 130.81 MB ; 0.0082 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 33.28 MB ; 0.0021 %
+tot:fw_half_sweep : vmem_increase = 202.36 MB ; 0.0127 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.31 MB ; 0.0024 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 136.46 MB ; 0.0084 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 37.86 MB ; 0.0023 %
+tot:bw_half_sweep : vmem_increase = 212.63 MB ; 0.0132 %
+9    . iteration.  Data residuum : 0.924850438424908
+delta_tol : vmem_increase = 415.0 MB ; 0.0261 %
+Percentage of consumed vmem at iter # 9 = 15.9 GB = 65.1% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 36.94 MB ; 0.0023 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 155.38 MB ; 0.0095 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 33.44 MB ; 0.002 %
+tot:fw_half_sweep : vmem_increase = 225.77 MB ; 0.0138 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 39.19 MB ; 0.0024 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 136.56 MB ; 0.0082 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 35.87 MB ; 0.0021 %
+tot:bw_half_sweep : vmem_increase = 211.61 MB ; 0.0128 %
+10   . iteration.  Data residuum : 0.9247490576155419
+delta_tol : vmem_increase = 438.45 MB ; 0.0269 %
+Percentage of consumed vmem at iter # 10 = 16.4 GB = 66.4% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 37.89 MB ; 0.0023 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 172.96 MB ; 0.0103 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 32.67 MB ; 0.0019 %
+tot:fw_half_sweep : vmem_increase = 243.53 MB ; 0.0145 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 37.59 MB ; 0.0022 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 122.28 MB ; 0.0072 %
+bw add_contraction+del L_stack : vmem_increase = 0.13 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 34.09 MB ; 0.002 %
+tot:bw_half_sweep : vmem_increase = 194.1 MB ; 0.0114 %
+11   . iteration.  Data residuum : 2.9429508787097416
+delta_tol : vmem_increase = 437.62 MB ; 0.0261 %
+Percentage of consumed vmem at iter # 11 = 16.8 GB = 67.8% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 25.17 MB ; 0.0015 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 139.73 MB ; 0.0081 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 36.03 MB ; 0.0021 %
+tot:fw_half_sweep : vmem_increase = 200.93 MB ; 0.0117 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.39 MB ; 0.0022 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 138.7 MB ; 0.008 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 36.78 MB ; 0.0021 %
+tot:bw_half_sweep : vmem_increase = 213.86 MB ; 0.0123 %
+12   . iteration.  Data residuum : 0.8939671840708172
+delta_tol : vmem_increase = 414.79 MB ; 0.0241 %
+Percentage of consumed vmem at iter # 12 = 17.2 GB = 69.1% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 39.83 MB ; 0.0023 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 128.54 MB ; 0.0073 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 35.81 MB ; 0.002 %
+tot:fw_half_sweep : vmem_increase = 204.18 MB ; 0.0116 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 39.12 MB ; 0.0022 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 139.26 MB ; 0.0078 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.0 MB ; 0.0021 %
+tot:bw_half_sweep : vmem_increase = 216.38 MB ; 0.0121 %
+13   . iteration.  Data residuum : 0.9944721952803895
+delta_tol : vmem_increase = 420.57 MB ; 0.0239 %
+Percentage of consumed vmem at iter # 13 = 17.6 GB = 70.4% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 36.31 MB ; 0.002 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 139.17 MB ; 0.0077 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 36.29 MB ; 0.002 %
+tot:fw_half_sweep : vmem_increase = 211.76 MB ; 0.0117 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.39 MB ; 0.0021 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 138.32 MB ; 0.0076 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 36.89 MB ; 0.002 %
+tot:bw_half_sweep : vmem_increase = 213.59 MB ; 0.0117 %
+14   . iteration.  Data residuum : 0.9992406762687075
+delta_tol : vmem_increase = 425.36 MB ; 0.0236 %
+Percentage of consumed vmem at iter # 14 = 18.0 GB = 71.7% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 39.11 MB ; 0.0021 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 138.79 MB ; 0.0075 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 33.58 MB ; 0.0018 %
+tot:fw_half_sweep : vmem_increase = 211.48 MB ; 0.0115 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 41.5 MB ; 0.0022 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 139.27 MB ; 0.0074 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 35.96 MB ; 0.0019 %
+tot:bw_half_sweep : vmem_increase = 216.72 MB ; 0.0116 %
+15   . iteration.  Data residuum : 1.1173584873294031
+delta_tol : vmem_increase = 428.21 MB ; 0.0232 %
+Percentage of consumed vmem at iter # 15 = 18.4 GB = 73.0% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 41.69 MB ; 0.0022 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 136.27 MB ; 0.0072 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 36.97 MB ; 0.0019 %
+tot:fw_half_sweep : vmem_increase = 214.93 MB ; 0.0114 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 36.52 MB ; 0.0019 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 139.32 MB ; 0.0073 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 36.39 MB ; 0.0019 %
+tot:bw_half_sweep : vmem_increase = 212.23 MB ; 0.0111 %
+16   . iteration.  Data residuum : 0.9633897369116725
+delta_tol : vmem_increase = 427.16 MB ; 0.0226 %
+Percentage of consumed vmem at iter # 16 = 18.9 GB = 74.5% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 36.69 MB ; 0.0019 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 140.13 MB ; 0.0072 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 34.86 MB ; 0.0018 %
+tot:fw_half_sweep : vmem_increase = 211.68 MB ; 0.011 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 41.02 MB ; 0.0021 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 140.43 MB ; 0.0072 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 36.72 MB ; 0.0019 %
+tot:bw_half_sweep : vmem_increase = 218.17 MB ; 0.0112 %
+17   . iteration.  Data residuum : 5.752809595096325
+delta_tol : vmem_increase = 429.85 MB ; 0.0223 %
+Percentage of consumed vmem at iter # 17 = 19.3 GB = 75.8% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 53.62 MB ; 0.0027 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 137.43 MB ; 0.0069 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 35.79 MB ; 0.0018 %
+tot:fw_half_sweep : vmem_increase = 226.85 MB ; 0.0115 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.75 MB ; 0.0019 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 138.52 MB ; 0.0069 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 35.36 MB ; 0.0018 %
+tot:bw_half_sweep : vmem_increase = 212.62 MB ; 0.0106 %
+18   . iteration.  Data residuum : 0.9218105853204945
+delta_tol : vmem_increase = 439.47 MB ; 0.0223 %
+Percentage of consumed vmem at iter # 18 = 19.7 GB = 77.1% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 40.06 MB ; 0.002 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 139.34 MB ; 0.0069 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 35.46 MB ; 0.0017 %
+tot:fw_half_sweep : vmem_increase = 214.86 MB ; 0.0106 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 42.27 MB ; 0.0021 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 137.99 MB ; 0.0067 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 36.34 MB ; 0.0018 %
+tot:bw_half_sweep : vmem_increase = 216.6 MB ; 0.0106 %
+19   . iteration.  Data residuum : 0.9623668583278074
+delta_tol : vmem_increase = 431.46 MB ; 0.0214 %
+Percentage of consumed vmem at iter # 19 = 20.1 GB = 78.6% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.79 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 42.44 MB ; 0.0021 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 151.54 MB ; 0.0073 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 37.16 MB ; 0.0018 %
+tot:fw_half_sweep : vmem_increase = 231.93 MB ; 0.0112 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 39.67 MB ; 0.0019 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 138.72 MB ; 0.0066 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 35.01 MB ; 0.0017 %
+tot:bw_half_sweep : vmem_increase = 213.4 MB ; 0.0102 %
+20   . iteration.  Data residuum : 1.0044096002030476
+delta_tol : vmem_increase = 445.33 MB ; 0.0216 %
+Percentage of consumed vmem at iter # 20 = 20.6 GB = 80.0% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 41.04 MB ; 0.0019 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 125.84 MB ; 0.006 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 36.01 MB ; 0.0017 %
+tot:fw_half_sweep : vmem_increase = 202.89 MB ; 0.0096 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 37.19 MB ; 0.0017 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 138.59 MB ; 0.0065 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 36.59 MB ; 0.0017 %
+tot:bw_half_sweep : vmem_increase = 212.37 MB ; 0.01 %
+21   . iteration.  Data residuum : 0.9939215913674376
+delta_tol : vmem_increase = 415.27 MB ; 0.0197 %
+Percentage of consumed vmem at iter # 21 = 21.0 GB = 81.3% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 36.46 MB ; 0.0017 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 139.78 MB ; 0.0065 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 37.87 MB ; 0.0017 %
+tot:fw_half_sweep : vmem_increase = 214.11 MB ; 0.01 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 39.67 MB ; 0.0018 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 149.38 MB ; 0.0069 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 32.46 MB ; 0.0015 %
+tot:bw_half_sweep : vmem_increase = 221.5 MB ; 0.0102 %
+22   . iteration.  Data residuum : 0.9095961151459085
+delta_tol : vmem_increase = 435.62 MB ; 0.0203 %
+Percentage of consumed vmem at iter # 22 = 21.4 GB = 82.6% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 18.77 MB ; 0.0009 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 139.5 MB ; 0.0064 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 34.67 MB ; 0.0016 %
+tot:fw_half_sweep : vmem_increase = 192.95 MB ; 0.0088 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 40.84 MB ; 0.0018 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 132.47 MB ; 0.006 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 35.46 MB ; 0.0016 %
+tot:bw_half_sweep : vmem_increase = 208.77 MB ; 0.0094 %
+23   . iteration.  Data residuum : 0.9409981688292133
+delta_tol : vmem_increase = 401.72 MB ; 0.0183 %
+Percentage of consumed vmem at iter # 23 = 21.8 GB = 84.1% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 40.68 MB ; 0.0018 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 136.64 MB ; 0.0061 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 36.28 MB ; 0.0016 %
+tot:fw_half_sweep : vmem_increase = 213.61 MB ; 0.0096 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.38 MB ; 0.0017 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 151.74 MB ; 0.0067 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 31.88 MB ; 0.0014 %
+tot:bw_half_sweep : vmem_increase = 222.0 MB ; 0.0099 %
+24   . iteration.  Data residuum : 1.2206995472539555
+delta_tol : vmem_increase = 435.61 MB ; 0.0195 %
+Percentage of consumed vmem at iter # 24 = 22.2 GB = 85.4% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 37.71 MB ; 0.0017 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 140.29 MB ; 0.0062 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 37.76 MB ; 0.0016 %
+tot:fw_half_sweep : vmem_increase = 215.76 MB ; 0.0095 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 39.3 MB ; 0.0017 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 135.36 MB ; 0.0059 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 35.96 MB ; 0.0016 %
+tot:bw_half_sweep : vmem_increase = 210.62 MB ; 0.0092 %
+25   . iteration.  Data residuum : 0.9344367543018078
+delta_tol : vmem_increase = 426.38 MB ; 0.0187 %
+Percentage of consumed vmem at iter # 25 = 22.6 GB = 86.8% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 40.3 MB ; 0.0017 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 137.28 MB ; 0.0059 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 38.47 MB ; 0.0016 %
+tot:fw_half_sweep : vmem_increase = 216.05 MB ; 0.0093 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 37.69 MB ; 0.0016 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 138.07 MB ; 0.0059 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 35.88 MB ; 0.0015 %
+tot:bw_half_sweep : vmem_increase = 211.64 MB ; 0.009 %
+26   . iteration.  Data residuum : 1.0892959620263054
+delta_tol : vmem_increase = 427.7 MB ; 0.0185 %
+Percentage of consumed vmem at iter # 26 = 23.1 GB = 88.2% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 41.01 MB ; 0.0017 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 130.13 MB ; 0.0055 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 36.7 MB ; 0.0015 %
+tot:fw_half_sweep : vmem_increase = 207.84 MB ; 0.0088 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.08 MB ; 0.0016 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 164.6 MB ; 0.0069 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 33.5 MB ; 0.0014 %
+tot:bw_half_sweep : vmem_increase = 236.18 MB ; 0.0099 %
+27   . iteration.  Data residuum : 1.0350421628343731
+delta_tol : vmem_increase = 444.01 MB ; 0.0188 %
+Percentage of consumed vmem at iter # 27 = 23.5 GB = 89.2% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 37.72 MB ; 0.0016 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 137.99 MB ; 0.0057 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 37.02 MB ; 0.0015 %
+tot:fw_half_sweep : vmem_increase = 212.73 MB ; 0.0088 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 36.58 MB ; 0.0015 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 137.76 MB ; 0.0057 %
+bw add_contraction+del L_stack : vmem_increase = 0.41 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 33.66 MB ; 0.0014 %
+tot:bw_half_sweep : vmem_increase = 209.01 MB ; 0.0086 %
+28   . iteration.  Data residuum : 0.9987751028424728
+delta_tol : vmem_increase = 421.74 MB ; 0.0175 %
+Percentage of consumed vmem at iter # 28 = 23.9 GB = 90.8% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 42.04 MB ; 0.0017 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 133.96 MB ; 0.0055 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 35.13 MB ; 0.0014 %
+tot:fw_half_sweep : vmem_increase = 211.13 MB ; 0.0086 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.38 MB ; 0.0016 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 132.36 MB ; 0.0054 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.36 MB ; 0.0015 %
+tot:bw_half_sweep : vmem_increase = 209.1 MB ; 0.0085 %
+29   . iteration.  Data residuum : 0.920740257330303
+delta_tol : vmem_increase = 420.23 MB ; 0.0172 %
+Percentage of consumed vmem at iter # 29 = 24.3 GB = 92.3% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 38.41 MB ; 0.0015 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 137.78 MB ; 0.0055 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 37.68 MB ; 0.0015 %
+tot:fw_half_sweep : vmem_increase = 213.88 MB ; 0.0086 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 33.75 MB ; 0.0013 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 137.77 MB ; 0.0055 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 34.91 MB ; 0.0014 %
+tot:bw_half_sweep : vmem_increase = 206.43 MB ; 0.0082 %
+30   . iteration.  Data residuum : 0.8829471478983545
+delta_tol : vmem_increase = 420.31 MB ; 0.0169 %
+Percentage of consumed vmem at iter # 30 = 24.7 GB = 93.8% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 39.87 MB ; 0.0016 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 123.85 MB ; 0.0049 %
+fw:add_contract+del_RStack : vmem_increase = 0.19 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 33.24 MB ; 0.0013 %
+tot:fw_half_sweep : vmem_increase = 197.15 MB ; 0.0078 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 37.9 MB ; 0.0015 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = -33.17 MB ; -0.0013 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 38.61 MB ; 0.0015 %
+tot:bw_half_sweep : vmem_increase = 43.34 MB ; 0.0017 %
+31   . iteration.  Data residuum : 0.951931200892657
+delta_tol : vmem_increase = 240.49 MB ; 0.0095 %
+Percentage of consumed vmem at iter # 31 = 25.0 GB = 94.2% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 39.4 MB ; 0.0015 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 42.04 MB ; 0.0016 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 34.62 MB ; 0.0014 %
+tot:fw_half_sweep : vmem_increase = 116.05 MB ; 0.0045 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 39.63 MB ; 0.0015 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 159.4 MB ; 0.0062 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 39.72 MB ; 0.0015 %
+tot:bw_half_sweep : vmem_increase = 238.75 MB ; 0.0093 %
+32   . iteration.  Data residuum : 0.996639883508043
+delta_tol : vmem_increase = 354.8 MB ; 0.0139 %
+Percentage of consumed vmem at iter # 32 = 25.3 GB = 95.1% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 37.32 MB ; 0.0014 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 17.7 MB ; 0.0007 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 40.82 MB ; 0.0016 %
+tot:fw_half_sweep : vmem_increase = 95.84 MB ; 0.0037 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 42.66 MB ; 0.0016 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 66.04 MB ; 0.0025 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 37.93 MB ; 0.0015 %
+tot:bw_half_sweep : vmem_increase = 146.62 MB ; 0.0056 %
+33   . iteration.  Data residuum : 0.8991815519926443
+delta_tol : vmem_increase = 242.46 MB ; 0.0094 %
+Percentage of consumed vmem at iter # 33 = 25.5 GB = 95.7% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 38.72 MB ; 0.0015 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 87.1 MB ; 0.0033 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 36.97 MB ; 0.0014 %
+tot:fw_half_sweep : vmem_increase = 162.79 MB ; 0.0062 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 45.5 MB ; 0.0017 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 138.18 MB ; 0.0052 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 73.5 MB ; 0.0028 %
+tot:bw_half_sweep : vmem_increase = 257.17 MB ; 0.0098 %
+34   . iteration.  Data residuum : 1.2461862627004288
+delta_tol : vmem_increase = 419.96 MB ; 0.0161 %
+Percentage of consumed vmem at iter # 34 = 25.9 GB = 96.9% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 37.64 MB ; 0.0014 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 139.09 MB ; 0.0052 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 37.32 MB ; 0.0014 %
+tot:fw_half_sweep : vmem_increase = 214.05 MB ; 0.0081 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 40.2 MB ; 0.0015 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 140.7 MB ; 0.0052 %
+bw add_contraction+del L_stack : vmem_increase = -0.47 MB ; -0.0 %
+bw:loc_solver : vmem_increase = 70.0 MB ; 0.0026 %
+tot:bw_half_sweep : vmem_increase = 250.07 MB ; 0.0093 %
+35   . iteration.  Data residuum : 0.8484154361815105
+delta_tol : vmem_increase = 464.12 MB ; 0.0175 %
+Percentage of consumed vmem at iter # 35 = 26.4 GB = 98.3% out of 31.1 GB
+fw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 68.29 MB ; 0.0025 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 132.07 MB ; 0.0049 %
+fw:add_contract+del_RStack : vmem_increase = 0.0 MB ; 0.0 %
+fw:loc_solver : vmem_increase = 72.39 MB ; 0.0027 %
+tot:fw_half_sweep : vmem_increase = 272.75 MB ; 0.0101 %
+bw:loc_solver : vmem_increase = 0.0 MB ; 0.0 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %
+bw:loc_solver : vmem_increase = 71.5 MB ; 0.0026 %
+bw add_contraction+del L_stack : vmem_increase = 0.0 MB ; 0.0 %

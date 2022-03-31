@@ -12,6 +12,9 @@ import logging
 import numpy as np
 import psutil
 from pympler.classtracker import ClassTracker
+import random
+
+random.seed(1000)
 # from feature_utils import orthpoly_basis
 # from tt import Extended_TensorTrain, Dörfler_Adaptivity
 from TT.feature_utils import orthpoly_basis
@@ -35,7 +38,7 @@ if __name__ == '__main__':
     # set tensor order, dimensions and ranks
     order = D_x
     phi_dims = [10] * order
-    ranks = [10] * (order - 1)
+    ranks = [20] * (order - 1)
 
     # Feature Generation
     tfeatures = orthpoly_basis(degrees=phi_dims, domain=[-1., 1], norm='H1')
@@ -48,7 +51,7 @@ if __name__ == '__main__':
 
     # Training configs
     dry_run = False
-    batch_size = 10 if dry_run else 100
+    batch_size = 10 if dry_run else 500
     n_batch = 10
     train_meta_data_file_prefix = 'train_meta_data_dz_dt'
     train_meta_data_dir = 'train_meta_data'
