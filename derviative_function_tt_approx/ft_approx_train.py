@@ -1,3 +1,8 @@
+"""
+Memory profile refs
+https://pympler.readthedocs.io/en/latest/tutorials/muppy_tutorial.html
+https://pypi.org/project/memory-profiler/
+"""
 import datetime
 import gc
 import os.path

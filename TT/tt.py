@@ -689,6 +689,11 @@ class ALS_Regression(object):
     # TODO early stopping when rank updates yield not significant improvement/overfitting
     # TODO early stopping based on overfitting (compute residual on separate validation set)
     # TODO L1 regularisation (Philipp)
+    @staticmethod
+    def mem_profile_diff_print(tracker, msg):
+        print(msg)
+        tracker.print_diff()
+
     def solve(self, x, y, iterations, tol, verboselevel, rule=None, reg_param=None):
 
         """
@@ -864,23 +869,32 @@ class ALS_Regression(object):
                 # c = ret[1]
                 # mem_usg = ret[0]
                 # self.linealg_solve_mem_profile.append(mem_usg)
-                # c = lb.linalg.solve(ATA, ATy)
+                ALS_Regression.mem_profile_diff_print(mem_summary_tracker, "Before lb.linalg.solve in solve_local")
+                c = lb.linalg.solve(ATA, ATy)
+                ALS_Regression.mem_profile_diff_print(mem_summary_tracker, "After lb.linalg.solve in solve_local")
+                rel_err = lb.linalg.norm(A @ c - y) / lb.linalg.norm(y)
 
-                # rel_err = lb.linalg.norm(A @ c - y) / lb.linalg.norm(y)
-                rel_err = 0.5  # FIXME a hack to use LSQ always and avoid normal equation
                 if rel_err > 1e-4:
                     with TicToc(key=" o local solve via lstsq ", do_print=False, accumulate=True, sec_key="ALS: "):
                         if reg_param is not None:
                             Ahat = lb.concatenate([A, lb.sqrt(reg_param) * lb.eye(A.shape[1])], 0)
                             yhat = lb.concatenate([y, lb.zeros((A.shape[1], 1))], 0)
-                            proc = (lb.linalg.lstsq, (Ahat, yhat), {'rcond': None})
-                            m = memory_usage(proc=proc, retval=True, max_usage=True)
-                            # c, res, rank, sigma = lb.linalg.lstsq(Ahat, yhat, rcond=None)
-                            c, res, rank, sigma = m[1]
-                            self.lstsq_mem_profile.append(m[0])
+
+                            # proc = (lb.linalg.lstsq, (Ahat, yhat), {'rcond': None})
+                            # m = memory_usage(proc=proc, retval=True, max_usage=True)
+                            # c, res, rank, sigma = m[1]
+                            ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
+                                                                  "Before lb.linalg.lstsq with no reg_param")
+                            c, res, rank, sigma = lb.linalg.lstsq(Ahat, yhat, rcond=None)
+                            ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
+                                                                  "After lb.linalg.lstsq with no reg_param")
 
                         else:
+                            ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
+                                                                  "Before lb.linalg.lstsq with reg_param")
                             c, res, rank, sigma = lb.linalg.lstsq(A, y, rcond=None)
+                            ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
+                                                                  "After lb.linalg.lstsq with reg_param")
 
                 s = self.xTT.tt.comps[mu].shape
                 self.xTT.tt.comps[mu] = c.reshape(s[0], s[1], s[2])
@@ -919,11 +933,11 @@ class ALS_Regression(object):
                 self.xTT.tt.set_core(mu)
                 if mu > 0:
                     # L_stack_copy = L_stack.copy()
-                    # print('Before add_contraction fw')
-                    # mem_summary_tracker.print_diff()
+
+                    ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
+                                                          "Before add_contraction +del R_stack[-1] in forward sweep")
                     add_contraction(mu - 1, L_stack, side='left')
-                    # print('After add_contraction fw')
-                    # mem_summary_tracker.print_diff()
+
                     # # FIXME memory profiling ,overhead, remove
                     # proc = (add_contraction, (mu - 1, L_stack), {'side': 'left'})
                     # m = memory_usage(proc=proc, max_usage=True, retval=False, max_iterations=1)
@@ -931,24 +945,30 @@ class ALS_Regression(object):
                     # # assert compare_list_tensors(L_stack, L_stack_copy)
                     # # FIXME END memory profiling ####
                     del R_stack[-1]
-                    # print('After add_contraction del fw')
-                    # mem_summary_tracker.print_diff()
-                # print('Before loc_solver')
-                # mem_summary_tracker.print_diff()
+                    ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
+                                                          "After add_contraction +del R_stack[-1] in forward half sweep")
+                ALS_Regression.mem_profile_diff_print(mem_summary_tracker, "Before loc_solver in forward half sweep")
                 loc_solver(mu, L_stack[-1], R_stack[-1])
-                # print('After loc_solver')
-                # mem_summary_tracker.print_diff()
+                ALS_Regression.mem_profile_diff_print(mem_summary_tracker, "After loc_solver in forward half sweep")
             # before back sweep
             self.xTT.tt.set_core(d - 1)
+            ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
+                                                  "Before add_contraction + del R_stack[-1] in before back sweep")
             add_contraction(d - 2, L_stack, side='left')
             del R_stack[-1]
+            ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
+                                                  "After add_contraction + del R_stack[-1] in before back sweep")
 
             # backward half sweep
             for mu in range(d - 1, 0, -1):
                 self.xTT.tt.set_core(mu)
                 if mu < d - 1:
                     # R_stack_copy = R_stack.copy()
+                    ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
+                                                          "Before add_contraction and del L_stack in "
+                                                          "backward half-sweep")
                     add_contraction(mu + 1, R_stack, side='right')
+
                     # # FIXME memory profiling, overhead, remove
                     # proc = (add_contraction, (mu + 1, R_stack), {'side': 'right'})
                     # m = memory_usage(proc=proc, max_usage=True, retval=False, max_iterations=1)
@@ -956,7 +976,12 @@ class ALS_Regression(object):
                     # # assert compare_list_tensors(R_stack, R_stack_copy)  # test same input/output
                     # ## FIXME end memory profiling
                     del L_stack[-1]
+                    ALS_Regression.mem_profile_diff_print(mem_summary_tracker,
+                                                          "After add_contraction and del L_stack in "
+                                                          "backward half-sweep")
+                ALS_Regression.mem_profile_diff_print(mem_summary_tracker, "Before loc_solver in backward half-sweep")
                 loc_solver(mu, L_stack[-1], R_stack[-1])
+                ALS_Regression.mem_profile_diff_print(mem_summary_tracker, "After loc_solver in backward half-sweep")
 
             # before forward sweep
             self.xTT.tt.set_core(0)
