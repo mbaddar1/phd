@@ -861,10 +861,11 @@ class ALS_Regression(object):
         history = []
 
         iter = 0
-        gb_const = 1024*1024*1024
-        vmem_gb = np.round(psutil.virtual_memory().available /gb_const,1)
+        gb_const = 1024 * 1024 * 1024
+        vmem_gb = np.round(psutil.virtual_memory().available / gb_const, 1)
         while not stop_condition:
-            print(f'Percentage of consumed vmem at iter # {iter} = {psutil.virtual_memory().percent} out of {vmem_gb} GB')
+            print(
+                f'Percentage of consumed vmem at iter # {iter} = {psutil.virtual_memory().percent} out of {vmem_gb} GB')
             self.memory_track_print_diff("At loop beginning")
             # forward half-sweep
             for mu in range(d - 1):
@@ -926,6 +927,7 @@ class ALS_Regression(object):
                         history = []
 
             self.memory_track_print_diff("At loop end")
+            iter += 1
         return self.xTT.tt
 
     def tangent_fit(self,
