@@ -690,9 +690,10 @@ class ALS_Regression(object):
     # TODO early stopping based on overfitting (compute residual on separate validation set)
     # TODO L1 regularisation (Philipp)
     @staticmethod
-    def mem_profile_diff_print(tracker, msg):
-        print(msg)
-        tracker.print_diff()
+    def mem_profile_diff_print(tracker, msg, activate=False):
+        if activate:  # control overhead
+            print(msg)
+            tracker.print_diff()
 
     def solve(self, x, y, iterations, tol, verboselevel, rule=None, reg_param=None):
 

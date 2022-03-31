@@ -35,14 +35,13 @@ if __name__ == '__main__':
     # set tensor order, dimensions and ranks
     order = D_x
     phi_dims = [10] * order
-    ranks = [5] * (order - 1)
-    ranks2 = [1] * (order - 1)
+    ranks = [10] * (order - 1)
 
     # Feature Generation
     tfeatures = orthpoly_basis(degrees=phi_dims, domain=[-1., 1], norm='H1')
     logger.debug(f'Features Generated')
 
-    xTT = Extended_TensorTrain(tfeatures, ranks2)
+    xTT = Extended_TensorTrain(tfeatures, ranks)
     tracker = ClassTracker()
     tracker.track_object(xTT)
     logger.debug(f'Generated xTT')
@@ -56,14 +55,15 @@ if __name__ == '__main__':
     train_meta_data_file_prefix = 'train_meta_data_dz_dt'
     train_meta_data_dir = 'train_meta_data'
     timestamp_ = datetime.datetime.now().isoformat()
-    n_iterations = 10 if dry_run else 1000 # 2000
+    n_iterations = 10 if dry_run else 100  # 2000
+    n_batch_iter = 10
     max_rank = 10
     # TODO
     # epochs
     # all dims
-    for bi in range(20): # batch index
-        print(f"batch # {bi+1} with memory percentage = {psutil.virtual_memory().percent}")
-        for d_y_idx in range(1):
+    for bi in range(n_batch_iter):  # batch index
+        print(f"batch # {bi + 1} with memory percentage = {psutil.virtual_memory().percent}")
+        for d_y_idx in range(D_y):
             # memory profiling
             # memory_log_filename = f"memory_profiling_logs/memory_profile_log_Yd_{d_y_idx}_max_rank_{max_rank}
             # _niter_{n_iterations}_nsample_{n_samples}.logs"
@@ -75,7 +75,6 @@ if __name__ == '__main__':
             X_train = X[random_idx, :].double()
             Y_train = Y[random_idx, d_y_idx].view(-1, 1).double()
             rule = Dörfler_Adaptivity(delta=1e-6, maxranks=[max_rank] * (order - 1), dims=phi_dims, rankincr=1)
-            xTT.rank = [max_rank]*(order-1)
             xTT.fit(X_train, Y_train, iterations=n_iterations, verboselevel=1, rule=None, reg_param=1e-6)
             tracker.stats.print_summary()
             train_meta_data_filepath = os.path.join(train_meta_data_dir,
@@ -85,4 +84,3 @@ if __name__ == '__main__':
             logger.info(f'Finished training with at with N = {n_samples} for y_d|d={d_y_idx + 1} '
                         f'with max_rank = {max_rank}')
             gc.collect()
-
