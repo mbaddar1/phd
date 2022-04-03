@@ -1,19 +1,17 @@
 from types import LambdaType
-
-import psutil
 from colorama import Fore, Style
 # from numpy import core
 from numpy.core.numeric import full
 import copy
 
 from scipy.linalg import null_space
-from TT import tensor
+
 import numpy as np
 from numpy.polynomial.legendre import Legendre
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-from pympler.tracker import SummaryTracker
+
 from itertools import product
 
 from TT.tictoc import TicToc
@@ -34,7 +32,7 @@ from TT.feature_utils import orthpoly_basis
 from TT.linearbackend import lb
 
 # tensor utilities
-import TT.tensor
+from TT import tensor
 
 
 class Rule(object):
@@ -667,20 +665,6 @@ class ALS_Regression(object):
         self.R = None
 
         # self.loc_solver_opt = {'modus' : 'normal', }
-        self.memory_summary_tracker = None  # SummaryTracker()
-
-    @staticmethod
-    def print_mem_delta(mem_ref_point, prefix):
-        mb_const = 1024 * 1024
-        delta = psutil.virtual_memory().used - mem_ref_point
-        delta_mb = np.round(delta / mb_const, 2)
-        percent_delta = np.round(delta / mem_ref_point, 4)
-        print(f'{prefix} : vmem_increase = {delta_mb} MB ; {percent_delta} %')
-
-    def memory_track_print_diff(self, msg):
-        if self.memory_summary_tracker is not None:  # mem-track is active
-            print(msg)
-            self.memory_summary_tracker.print_diff()
 
     # TODO enable ALS with only forward half sweeps
     # TODO early stopping when residual grows
@@ -695,7 +679,6 @@ class ALS_Regression(object):
             y shape (batch_size, 1)
         """
 
-        tol = -1  # FIXME hack to make full iterations for memory leak check
         # size of the data batch
         b = y.shape[0]
 
@@ -834,9 +817,8 @@ class ALS_Regression(object):
                 if reg_param is not None:
                     assert isinstance(reg_param, float)
                     ATA += reg_param * lb.eye(ATA.shape[0])
-                # self.memory_track_print_diff("before solve_local:lb.linalg.solve")
+
                 c = lb.linalg.solve(ATA, ATy)
-                # self.memory_track_print_diff("after solve_local:lb.linalg.solve")
 
                 rel_err = lb.linalg.norm(A @ c - y) / lb.linalg.norm(y)
                 if rel_err > 1e-4:
@@ -844,13 +826,9 @@ class ALS_Regression(object):
                         if reg_param is not None:
                             Ahat = lb.concatenate([A, lb.sqrt(reg_param) * lb.eye(A.shape[1])], 0)
                             yhat = lb.concatenate([y, lb.zeros((A.shape[1], 1))], 0)
-                            # self.memory_track_print_diff("before solve_local:lb.linalg.lstsq")
                             c, res, rank, sigma = lb.linalg.lstsq(Ahat, yhat, rcond=None)
-                            # self.memory_track_print_diff("after solve_local:lb.linalg.lstsq")
                         else:
-                            # self.memory_track_print_diff("before solve_local:lb.linalg.lstsq")
                             c, res, rank, sigma = lb.linalg.lstsq(A, y, rcond=None)
-                            # self.memory_track_print_diff("after solve_local:lb.linalg.lstsq")
 
                 s = self.xTT.tt.comps[mu].shape
                 self.xTT.tt.comps[mu] = c.reshape(s[0], s[1], s[2])
@@ -873,52 +851,27 @@ class ALS_Regression(object):
 
         history = []
 
-        iter = 0
-        gb_const = 1024 * 1024 * 1024
-        mb_const = 1024 * 124
-        vmem_gb = np.round(psutil.virtual_memory().total / gb_const, 1)
         while not stop_condition:
-            mem0 = psutil.virtual_memory().used
-            # print(f'R_stack size = {len(R_stack)}')
-            # print(f'L_stack size = {len(L_stack)}')
-            # print(f'Num_cores = {len(self.xTT.tt.comps)}')
-            print(
-                f'Percentage of consumed vmem at iter # {iter} = '
-                f'{np.round(psutil.virtual_memory().used / gb_const, 1)} GB = '
-                f'{psutil.virtual_memory().percent}% out of {vmem_gb} GB')
-            self.memory_track_print_diff("At loop beginning")
             # forward half-sweep
-            mem1 = psutil.virtual_memory().used
             for mu in range(d - 1):
                 self.xTT.tt.set_core(mu)
                 if mu > 0:
-                    mem2 = psutil.virtual_memory().used
                     add_contraction(mu - 1, L_stack, side='left')
                     del R_stack[-1]
-                    ALS_Regression.print_mem_delta(mem2, "fw:add_contract+del_RStack")
-                mem3 = psutil.virtual_memory().used
                 loc_solver(mu, L_stack[-1], R_stack[-1])
-                ALS_Regression.print_mem_delta(mem3, "fw:loc_solver")
-            ALS_Regression.print_mem_delta(mem1, "tot:fw_half_sweep")
+
             # before back sweep
             self.xTT.tt.set_core(d - 1)
             add_contraction(d - 2, L_stack, side='left')
             del R_stack[-1]
+
             # backward half sweep
-            mem1 = psutil.virtual_memory().used
             for mu in range(d - 1, 0, -1):
-
                 self.xTT.tt.set_core(mu)
-
                 if mu < d - 1:
-                    mem2 = psutil.virtual_memory().used
                     add_contraction(mu + 1, R_stack, side='right')
                     del L_stack[-1]
-                    ALS_Regression.print_mem_delta(mem2, "bw add_contraction+del L_stack")
-                mem3 = psutil.virtual_memory().used
                 loc_solver(mu, L_stack[-1], R_stack[-1])
-                ALS_Regression.print_mem_delta(mem3,"bw:loc_solver")
-            ALS_Regression.print_mem_delta(mem1, "tot:bw_half_sweep")
 
             # before forward sweep
             self.xTT.tt.set_core(0)
@@ -936,30 +889,28 @@ class ALS_Regression(object):
                                                                                       r=Style.RESET_ALL, k=niter,
                                                                                       res=curr_res))
 
-            # history.append(curr_res)
-            # Hlength = 5
-            # rateTol = 1e-5
-            #
-            # if len(history) > Hlength:
-            #     latestH = lb.tensor(history[-Hlength:])
-            #     relative_history_rate = lb.cov(latestH) / lb.mean(latestH)
-            #
-            #     if relative_history_rate < rateTol:
-            #         if verboselevel > 0:
-            #             print("===== Attempting rank update ====")
-            #         if rule is not None:
-            #             self.xTT.tt.modify_ranks(rule)
-            #             # set core to 0 and re-initialize lists
-            #             self.xTT.tt.set_core(mu=0)
-            #             R_stack = [lb.ones((b, 1))]
-            #             L_stack = [lb.ones((b, 1))]
-            #             for mu in range(d - 1, 0, -1):
-            #                 add_contraction(mu, R_stack, side='right')
-            #
-            #             history = []
-            ALS_Regression.print_mem_delta(mem0, "delta_tol")
-            self.memory_track_print_diff("At loop end")
-            iter += 1
+            history.append(curr_res)
+            Hlength = 5
+            rateTol = 1e-5
+
+            if len(history) > Hlength:
+                latestH = lb.tensor(history[-Hlength:])
+                relative_history_rate = lb.cov(latestH) / lb.mean(latestH)
+
+                if relative_history_rate < rateTol:
+                    if verboselevel > 0:
+                        print("===== Attempting rank update ====")
+                    if rule is not None:
+                        self.xTT.tt.modify_ranks(rule)
+                        # set core to 0 and re-initialize lists
+                        self.xTT.tt.set_core(mu=0)
+                        R_stack = [lb.ones((b, 1))]
+                        L_stack = [lb.ones((b, 1))]
+                        for mu in range(d - 1, 0, -1):
+                            add_contraction(mu, R_stack, side='right')
+
+                        history = []
+
         return self.xTT.tt
 
     def tangent_fit(self,
@@ -1458,13 +1409,13 @@ def main(verbose):
     # ranks = [4] * (d-1)
 
     ranks2 = [1] * (d - 1)
-    ranks3 = [10] * (d - 1)
+
     # tfeatures = TensorPolynomial(dims)
     # tfeatures.set_polynomial(polytype = Legendre.basis)
 
     tfeatures = orthpoly_basis(degrees=dims, domain=[-1., 1], norm='H1')
 
-    xTT = Extended_TensorTrain(tfeatures, ranks)
+    xTT = Extended_TensorTrain(tfeatures, ranks2)
 
     # Create a target solution
     # X = TensorTrain(dims= dims)
@@ -1508,8 +1459,8 @@ def main(verbose):
     # print(lb.linalg.norm(res(xx2)-2*Xtt(xx2))/lb.linalg.norm(2*Xtt(xx2)))
 
     print("================= start fit ==============")
-    # rule = Dörfler_Adaptivity(delta=1e-6, maxranks=[32] * (d - 1), dims=dims, rankincr=1)
-    xTT.fit(xx, yy, iterations=2000, verboselevel=1, rule=None, reg_param=1e-6)
+    rule = Dörfler_Adaptivity(delta=1e-6, maxranks=[32] * (d - 1), dims=dims, rankincr=1)
+    xTT.fit(xx, yy, iterations=2000, verboselevel=1, rule=rule, reg_param=1e-6)
 
     print("non rounded rank: ", xTT.tt.rank)
     xTT.tt.round(1e-6, verbose=True)

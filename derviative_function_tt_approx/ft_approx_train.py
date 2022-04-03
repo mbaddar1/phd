@@ -11,6 +11,7 @@ import logging
 
 import numpy as np
 import psutil
+import torch
 from pympler.classtracker import ClassTracker
 import random
 
@@ -29,8 +30,11 @@ if __name__ == '__main__':
     data_pkl = pickle.load(open(data_pkl_filename, 'rb'))
     logger.debug(f'loaded data pkl {data_pkl_filename} !')
     # load data
-    X = data_pkl['X']
-    Y = data_pkl['Y']
+    # FIXME a hack to create new tensor with requires_grad = False
+    # the memory leak issue was due to requires_grad = True in input data tensor which propagated thru calculations
+    # c = torch.tensor(c.detach())
+    X = torch.tensor(data_pkl['X'].detach())
+    Y = torch.tensor(data_pkl['Y'].detach())
     D_x = X.size()[1]
     D_y = Y.size()[1]
     N = X.size()[0]
@@ -38,7 +42,7 @@ if __name__ == '__main__':
     # set tensor order, dimensions and ranks
     order = D_x
     phi_dims = [10] * order
-    ranks = [20] * (order - 1)
+    ranks = [10] * (order - 1)
 
     # Feature Generation
     tfeatures = orthpoly_basis(degrees=phi_dims, domain=[-1., 1], norm='H1')
