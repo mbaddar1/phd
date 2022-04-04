@@ -55,14 +55,14 @@ if __name__ == '__main__':
 
     # Training configs
     dry_run = False
-    batch_size = 10 if dry_run else 500
+    batch_size = 10 if dry_run else 1000
     n_batch = 10
     train_meta_data_file_prefix = 'train_meta_data_dz_dt'
     train_meta_data_dir = 'train_meta_data'
     timestamp_ = datetime.datetime.now().isoformat()
     n_iterations = 10 if dry_run else 100  # 2000
 
-    n_epochs = 10
+    n_epochs = 1
     ######
     for d_y_idx in range(D_y):
         for epoch in range(n_epochs):
@@ -73,7 +73,6 @@ if __name__ == '__main__':
                 random_idx = np.random.randint(low=0, high=N - 1, size=batch_size)
                 X_train = X[random_idx, :].double()
                 Y_train = Y[random_idx, d_y_idx].view(-1, 1).double()
-                # rule = Dörfler_Adaptivity(delta=1e-6, maxranks=[10] * (order - 1), dims=phi_dims, rankincr=1)
                 xTT.fit(X_train, Y_train, iterations=n_iterations, verboselevel=1, rule=None, reg_param=1e-6)
                 print(f"finished batch {bi+1}")
             print(f"finished epoch {epoch+1}")

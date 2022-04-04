@@ -1,4 +1,6 @@
 from types import LambdaType
+
+import psutil
 from colorama import Fore, Style
 # from numpy import core
 from numpy.core.numeric import full
@@ -850,8 +852,12 @@ class ALS_Regression(object):
             add_contraction(mu, R_stack, side='right')
 
         history = []
-
+        gb_const = 1024 * 1024 * 1024
+        vmem_gb = np.round(psutil.virtual_memory().total / gb_const, 2)
+        iter = 0
         while not stop_condition:
+            print(f'vmem used {np.round(psutil.virtual_memory().used / gb_const, 2)} GB = '
+                  f'{psutil.virtual_memory().percent} % out of {vmem_gb}')
             # forward half-sweep
             for mu in range(d - 1):
                 self.xTT.tt.set_core(mu)
@@ -898,9 +904,9 @@ class ALS_Regression(object):
                 relative_history_rate = lb.cov(latestH) / lb.mean(latestH)
 
                 if relative_history_rate < rateTol:
-                    if verboselevel > 0:
-                        print("===== Attempting rank update ====")
                     if rule is not None:
+                        if verboselevel > 0:
+                            print("===== Attempting rank update ====")
                         self.xTT.tt.modify_ranks(rule)
                         # set core to 0 and re-initialize lists
                         self.xTT.tt.set_core(mu=0)
@@ -910,6 +916,7 @@ class ALS_Regression(object):
                             add_contraction(mu, R_stack, side='right')
 
                         history = []
+            iter += 1
 
         return self.xTT.tt
 
