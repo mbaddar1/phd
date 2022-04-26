@@ -59,11 +59,12 @@ class CNF(nn.Module):
             z.requires_grad_(True)
 
             W, B, U = self.hyper_net(t)
-            dummy = torch.unsqueeze(z, 0)
+            dummy1 = torch.unsqueeze(z, 0)
             Z = torch.unsqueeze(z, 0).repeat(self.width, 1, 1)
             # node paper eq 7
+            dummy2 = torch.matmul(Z, W)
             h = torch.tanh(torch.matmul(Z, W) + B)
-            dummy = torch.matmul(h, U)
+            dummy3 = torch.matmul(h, U)
             dz_dt = torch.matmul(h, U).mean(0) # TODO average over width
 
             dlogp_z_dt = -trace_df_dz(dz_dt, z).view(batchsize, 1)
