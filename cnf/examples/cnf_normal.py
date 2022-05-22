@@ -22,6 +22,9 @@ if __name__ == '__main__':
     """
     Probability Density Function Transformation
     https://www.cl.cam.ac.uk/teaching/2003/Probability/prob11.pdf 
+    
+    https://en.wikibooks.org/wiki/Probability/Transformation_of_Random_Variables
+    https://en.wikibooks.org/wiki/Probability/Transformation_of_Probability_Densities
     """
     d = 4
     batch_size = 50
