@@ -1,5 +1,22 @@
 import torch
 
+# TODO read and experiment
+
+"""
+Probability Density Function Transformation
+https://stats.libretexts.org/Bookshelves/Probability_Theory/Probability_Mathematical_Statistics_and_Stochastic_Processes_(Siegrist)/03%3A_Distributions/3.07%3A_Transformations_of_Random_Variables
+https://www.cl.cam.ac.uk/teaching/2003/Probability/prob11.pdf 
+https://en.wikibooks.org/wiki/Probability/Transformation_of_Random_Variables
+https://en.wikibooks.org/wiki/Probability/Transformation_of_Probability_Densities
+https://www.math.arizona.edu/~jwatkins/f-transform.pdf 
+https://www.math.arizona.edu/~jwatkins/f-transform.pdf
+"""
+# TODO implementation technicalities
+"""
+Understanding Shapes in PyTorch
+https://bochang.me/blog/posts/pytorch-distributions/ 
+"""
+
 
 class MultiVariateUniform():
     def __init__(self, a=0, b=1, d=1):
@@ -15,17 +32,6 @@ class MultiVariateUniform():
 
 
 if __name__ == '__main__':
-    """
-    Understanding Shapes in PyTorch
-    https://bochang.me/blog/posts/pytorch-distributions/ 
-    """
-    """
-    Probability Density Function Transformation
-    https://www.cl.cam.ac.uk/teaching/2003/Probability/prob11.pdf 
-    
-    https://en.wikibooks.org/wiki/Probability/Transformation_of_Random_Variables
-    https://en.wikibooks.org/wiki/Probability/Transformation_of_Probability_Densities
-    """
     d = 4
     batch_size = 50
     bast_dist = torch.distributions.Normal(loc=torch.zeros(d), scale=torch.ones(d))
@@ -40,5 +46,5 @@ if __name__ == '__main__':
                                [0.3015, 0.2242, 0.0000, 0.0000],
                                [1.1173, 0.3950, 0.9838, 0.0000],
                                [0.2646, 1.1769, 0.8492, 0.8105]])
-    assert scale_tril.shape[0]==d,f"scale-tril shape doesn't match d , {scale_tril.shape[0]}!= {d}"
+    assert scale_tril.shape[0] == d, f"scale-tril shape doesn't match d , {scale_tril.shape[0]}!= {d}"
     target_dist_2 = torch.distributions.MultivariateNormal(loc=torch.tensor([mio] * d), scale_tril=scale_tril)
