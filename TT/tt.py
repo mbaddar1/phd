@@ -667,6 +667,7 @@ class ALS_Regression(object):
         self.R = None
 
         # self.loc_solver_opt = {'modus' : 'normal', }
+        # train meta_data
 
     # TODO enable ALS with only forward half sweeps
     # TODO early stopping when residual grows
@@ -680,7 +681,8 @@ class ALS_Regression(object):
             x shape (batch_size, input_dim)
             y shape (batch_size, 1)
         """
-
+        # train meta-data
+        train_meta_data = {}
         # size of the data batch
         b = y.shape[0]
 
@@ -855,6 +857,7 @@ class ALS_Regression(object):
         gb_const = 1024 * 1024 * 1024
         vmem_gb = np.round(psutil.virtual_memory().total / gb_const, 2)
         iter = 0
+        train_meta_data['curr_res'] = []
         while not stop_condition:
             print(f'vmem used {np.round(psutil.virtual_memory().used / gb_const, 2)} GB = '
                   f'{psutil.virtual_memory().percent} % out of {vmem_gb}')
@@ -887,6 +890,7 @@ class ALS_Regression(object):
             # update stop condition
             niter += 1
             curr_res = lb.linalg.norm(self.xTT(x) - y) ** 2 / lb.linalg.norm(y) ** 2
+            train_meta_data['curr_res'].append(curr_res.item())
             # update reg_param
             # reg_param = 1e-6*curr_res.item()
             stop_condition = niter > iterations or curr_res < tol
@@ -918,7 +922,7 @@ class ALS_Regression(object):
                         history = []
             iter += 1
 
-        return self.xTT.tt
+        return self.xTT.tt, train_meta_data
 
     def tangent_fit(self,
                     x,
@@ -949,12 +953,12 @@ class ALS_Regression(object):
 
         """
 
-        self.xTT.tt.set_core(self.xTT.d - 1)
+        self.xTT.tt.set_core(self.xTT.D_z - 1)
 
         Xtt = copy.copy(self.xTT)
 
         d_list = Xtt.tfeatures.degs
-        d = Xtt.d
+        d = Xtt.D_z
 
         r = [1] + [Xtt.tt.comps[mu].shape[2] for mu in range(d)]
 
@@ -1148,10 +1152,10 @@ class Extended_TensorTrain(object):
         """
 
         self.tfeatures = tfeatures
-        self.d = self.tfeatures.d
+        self.d = self.tfeatures.D_z
 
         # TODO also allow ranks len = d + 1  with [1] [...] + [1] shape
-        assert (len(ranks) == self.tfeatures.d - 1)
+        assert (len(ranks) == self.tfeatures.D_z - 1)
         self.rank = ranks
 
         self.tt = TensorTrain(tfeatures.degs)
@@ -1159,7 +1163,7 @@ class Extended_TensorTrain(object):
             self.tt.fill_random(ranks)
         else:
             # TODO allow ranks len d+1
-            for pos in range(self.tfeatures.d - 1):
+            for pos in range(self.tfeatures.D_z - 1):
                 assert (comps[pos].shape[2] == ranks[pos])
             self.tt.set_components(comps)
 
@@ -1228,8 +1232,9 @@ class Extended_TensorTrain(object):
         # with TicToc(key=" o ALS total ", do_print=False, accumulate=True, sec_key="ALS: "):
         #     res = solver.solve(x,y,iterations,tol,verboselevel, rule)
         with TicToc(key=" o ALS total ", do_print=False, accumulate=True, sec_key="ALS: "):
-            res = solver.solve(x, y, iterations, tol, verboselevel, rule, reg_param)
+            res, train_meta_data = solver.solve(x, y, iterations, tol, verboselevel, rule, reg_param)
         self.tt.set_components(res.comps)
+        return train_meta_data
 
     def tangent_fit(self, x, y, reg=False, reg_coeff=1e-6, reg0=False, reg0_coeff=1e-2, verbose=True):
 

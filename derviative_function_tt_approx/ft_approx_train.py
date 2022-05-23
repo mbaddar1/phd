@@ -48,13 +48,13 @@ if __name__ == '__main__':
     FORMAT = "[%(filename)s:%(lineno)s - %(funcName)20s() ] %(message)s"
     logging.basicConfig(level=logging.DEBUG, format=FORMAT)
     logger = logging.getLogger()
-    data_type = 'toy'
+    data_type = 'dz_dt'
     if data_type == 'dz_dt':
         data_pkl_filename = "data/data_2022-03-13T10_09_04.888518.pkl"
         X, Y = get_XY(data_type=data_type, file_path=data_pkl_filename)
     elif data_type == 'toy':
         toy_dim = 10
-        f = lambda x: lb.tensor(np.sin(np.sum(x[:, i] ** 2 for i in range(toy_dim))))
+        f = lambda x: lb.tensor(np.tanh(np.cos(np.sum(x[:, i] ** 2 for i in range(toy_dim)))))
         X, Y = get_XY(data_type=data_type, dim=10, order=5, max_rank=5, f=f)
     else:
         raise ValueError(f'undefined data-type {data_type}')
@@ -64,8 +64,8 @@ if __name__ == '__main__':
 
     # set TT-hyperparams
     order = D_x
-    phi_degree = [5] * order
-    ranks = [5] * (order - 1)
+    phi_degree = [10] * order
+    ranks = [10] * (order - 1)
 
     # Feature Generation
     tfeatures = orthpoly_basis(degrees=phi_degree, domain=[-1., 1], norm='H1')

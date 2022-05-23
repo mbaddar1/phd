@@ -16,11 +16,11 @@ if __name__ == '__main__':
 
     D = 4
     n_batches = 100
-    n_samples = 200
+    n_samples = 50
     timestamp = ""
     t0, t1 = 0, 10
     log_f_t = True  # a hack flag to trace f_t evaluations
-    model_filename = "cnf_func_fit_gmm_K_3_D_4_niters_3000_2022-03-11T11:59:23.341344.pkl"
+    model_filename = "cnf_func_fit_gmm_K_3_D_4_niters_3000_2022-04-05T10:44:04.398428.pkl"
     cnf_func_loaded = torch.load(os.path.join(saved_models_path, model_filename))
     logger.info(f'Model f{model_filename} loaded successfully')
     bast_dist = torch.distributions.MultivariateNormal(loc=torch.zeros(D),
@@ -31,14 +31,22 @@ if __name__ == '__main__':
 
     is_f_t_evals = True
     logger.info(f'number of batches = {n_batches} and number of samples = {n_samples}')
+    x_gen_agg = None
     for b in range(1, n_batches + 1):
 
         ft_dict_filename = f"ft_dict_{os.path.splitext(model_filename)[0]}_batch_{b}.pkl"
-        plot_file_name = f"x_gen_kde_{os.path.splitext(model_filename)[0]}_batch_{b}.png"
+
         logger.debug(f'Generating samples and derivative function trajectory for batch # {b}')
+
         x_gen, ft_dict = generate_samples_cnf(cnf_func=cnf_func_loaded, base_dist=bast_dist, n_samples=n_samples,
                                               t0=t0, t1=t1, is_f_t_evals=is_f_t_evals)
+        x_gen = torch.tensor(x_gen.detach()) # FIXME requires grad issue ??
+        if x_gen_agg is None:
+            x_gen_agg = x_gen
+        else:
+            x_gen_agg = torch.cat([x_gen_agg,x_gen],dim=0)
         logger.debug(f'Dumping pkl file for derivative function trajectory for batch {b}')
         pickle.dump(ft_dict, open(os.path.join(samples_dir, ft_dict_filename), "wb"))
         logger.debug(f'Dumping plot for generated samples for batch {b}')
-        plot_distribution(x=x_gen, filename=os.path.join(samples_dir, plot_file_name))
+    plot_file_name = f"x_gen_kde_{os.path.splitext(model_filename)[0]}.png"
+    plot_distribution(x=x_gen_agg, filename=os.path.join(samples_dir, plot_file_name))
