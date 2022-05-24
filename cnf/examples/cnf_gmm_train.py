@@ -74,7 +74,7 @@ if __name__ == '__main__':
             logger.info(
                 f'n_components_gmm = {K}, X_dim = {D}, time_diff_sec = {time_diff_sec}')
 
-            x_gen, _ = generate_samples_cnf(cnf_func=cnf_func_fit, base_dist=base_dist, n_samples=batch_size,
+            x_gen, _ = generate_samples_cnf(cnf_func_fit=cnf_func_fit, base_dist=base_dist, n_samples=batch_size,
                                             t0=t0, t1=t1, is_f_t_evals=is_f_t_evals)
             plot_distribution(x_gen,
                               os.path.join(plot_dir, f'output_kde_K_{K}_D_{D}_niters_{n_iters}_{timestamp}.png'))

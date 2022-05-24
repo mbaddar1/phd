@@ -38,7 +38,7 @@ if __name__ == '__main__':
 
         logger.debug(f'Generating samples and derivative function trajectory for batch # {b}')
 
-        x_gen, ft_dict = generate_samples_cnf(cnf_func=cnf_func_loaded, base_dist=bast_dist, n_samples=n_samples,
+        x_gen, ft_dict = generate_samples_cnf(cnf_func_fit=cnf_func_loaded, base_dist=bast_dist, n_samples=n_samples,
                                               t0=t0, t1=t1, is_f_t_evals=is_f_t_evals)
         x_gen = torch.tensor(x_gen.detach()) # FIXME requires grad issue ??
         if x_gen_agg is None:

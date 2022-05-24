@@ -25,12 +25,12 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
     optimizer = optim.Adam(cnf_func_instance.parameters(), lr=lr)
     loss_arr = np.zeros(niters)
     rolling_average_window = 3
-    eps = 1e-10
+    eps = 1e-5
     # train loop
     final_loss = None
     for itr_idx in tqdm(range(niters)):
         optimizer.zero_grad()
-        x = target_dist.sample_n(train_batch_size)
+        x = target_dist.sample((train_batch_size,))
         assert x.shape[1] == in_out_dim  # FIXME by design should get dim from data
         log_p_z_init_t1 = get_batched_init_log_p_z(num_samples=train_batch_size)
         s0 = x, log_p_z_init_t1
@@ -67,13 +67,13 @@ def cnf_fit(base_dist: torch.distributions.Distribution,
     return cnf_func_instance, final_loss
 
 
-def generate_samples_cnf(cnf_func, base_dist, n_samples, t0, t1, is_f_t_evals):
+def generate_samples_cnf(cnf_func_fit, base_dist, n_samples, t0, t1, is_f_t_evals):
     # timestamp = datetime.datetime.now().isoformat()
-    z0 = base_dist.sample_n(n_samples)
-    assert isinstance(cnf_func, CNF)
+    z0 = base_dist.sample((n_samples,))
+    assert isinstance(cnf_func_fit, CNF)
     log_p_z_init_t0 = get_batched_init_log_p_z(num_samples=n_samples)
 
-    (x_gen, _), ft_numeric = odeint(func=cnf_func, y0=(z0, log_p_z_init_t0),
+    (x_gen, _), ft_numeric = odeint(func=cnf_func_fit, y0=(z0, log_p_z_init_t0),
                                     t=torch.tensor([t0, t1]).type(torch.FloatTensor), is_f_t_evals=is_f_t_evals)
 
     ft_dict = ft_numeric.convert_to_dict()
@@ -95,6 +95,7 @@ def plot_distribution(x: torch.Tensor, filename: str):
     if d == 1:
         sns.kdeplot(x=x[:, 0].detach().numpy())
     elif d == 2:
+        print('plot d = 2')
         sns.kdeplot(x=x[:, 0].detach().numpy(), y=x[:, 1].detach().numpy())
     else:
         svd = TruncatedSVD(n_components=2, n_iter=7, random_state=42)
